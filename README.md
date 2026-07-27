@@ -1,22 +1,12 @@
-# ServeSync preheat fix
+# ServeSync v3.4
 
-This update fixes oven preheating.
+This build adds visible version numbering.
 
-Before:
-- each oven item could generate its own preheat instruction.
+The version is shown at the top beside the ServeSync name so it is easy to confirm which build is running.
 
-Now:
-- preheating belongs to the appliance, not the food;
-- one oven preheats once for a continuous run at the same temperature;
-- another heating step is only created when that oven genuinely needs to change temperature;
-- same-temperature dishes can continue using the already-hot oven.
+From this build onward:
+- every ServeSync update gets a new visible version number;
+- the service-worker cache name is also changed on each release;
+- GitHub update bundles will use the same version number.
 
-Example:
-- 17:00 Preheat oven to 200°C
-- 17:10 Chicken in
-- 17:40 Potatoes in
-- 17:50 Yorkshires in
-
-There is no second or third 200°C preheat.
-
-Upload these same 7 files over the current GitHub repository files and commit. GitHub Pages does not need to be configured again.
+Current build: **v3.4**
