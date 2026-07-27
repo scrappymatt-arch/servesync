@@ -163,6 +163,16 @@ textarea{
 .known-badge{display:inline-block;border-radius:999px;padding:5px 9px;background:#eaf7f0;color:var(--good);font-size:.8rem;font-weight:750;margin-top:5px}
 .unknown-badge{display:inline-block;border-radius:999px;padding:5px 9px;background:#fff2dd;color:var(--warn);font-size:.8rem;font-weight:750;margin-top:5px}
 
+
+.settings-overlay{
+  position:fixed; inset:0; z-index:10020;
+  background:rgba(31,41,51,.45);
+  padding:max(14px,env(safe-area-inset-top)) 12px max(14px,env(safe-area-inset-bottom));
+  overflow:auto;
+}
+.settings-shell{max-width:760px;margin:0 auto;min-height:100%;display:flex;align-items:flex-start;justify-content:center}
+.settings-card{width:100%;margin:20px 0}
+
 </style>
 
 <link rel="manifest" href="manifest.webmanifest">
@@ -181,12 +191,22 @@ textarea{
     <h1>🍽️ ServeSync</h1>
     <p>Everything ready together.</p>
   </div>
-  <button class="btn ghost" id="kitchenBtn">My Kitchen</button>
+  <button class="btn ghost" id="kitchenBtn">⚙ Settings</button>
 </header>
 
-<section class="card" id="kitchenCard">
-  <h2>My Kitchen</h2>
-  <p class="muted">Set this once. ServeSync remembers the equipment you have.</p>
+
+<div id="kitchenCard" class="settings-overlay hidden">
+  <div class="settings-shell">
+    <div class="card settings-card">
+      <div class="row" style="align-items:flex-start">
+      <div>
+        <h2 style="margin-bottom:3px">Settings</h2>
+        <div class="muted">Your kitchen setup is saved on this device.</div>
+      </div>
+      <button class="btn ghost" id="closeSettings" style="flex:0 0 auto">Close</button>
+    </div>
+    <h3>My Kitchen</h3>
+  <p class="muted">Set this once. You only need to return here when your equipment or temperature preference changes.</p>
   <div class="grid4">
     <div class="kitchen-count"><span>Ovens</span><input id="ovens" type="number" min="0" max="4" value="1"></div>
     <div class="kitchen-count"><span>Hob rings</span><input id="hobs" type="number" min="0" max="8" value="4"></div>
@@ -201,9 +221,12 @@ textarea{
     </select>
   </div>
   <div class="actions" style="margin-top:12px">
-    <button class="btn primary" id="saveKitchen">Save kitchen</button>
+    <button class="btn primary" id="saveKitchen">Save settings</button>
   </div>
-</section>
+    </div>
+  </div>
+</div>
+
 
 <section class="card">
   <h2>When should the meal be ready?</h2>
@@ -549,7 +572,7 @@ textarea{
   <button class="btn ghost hidden" id="installPwaBtn">Install ServeSync</button>
 </section>
 
-<footer>Barcode-first sample · No account · No tracking</footer>
+<footer>Simplified beta · No account · No tracking</footer>
 </div>
 
 <script src="https://unpkg.com/@zxing/browser@0.2.1"></script>
@@ -636,6 +659,15 @@ function setDefaultTimes(){
 }
 setDefaultTimes();
 
+
+(function migrateKitchenKey(){
+  try{
+    if(!localStorage.getItem("servesync-kitchen") && localStorage.getItem("servesync-kitchen")){
+      localStorage.setItem("servesync-kitchen", localStorage.getItem("servesync-kitchen"));
+    }
+  }catch(e){}
+})();
+
 function saveKitchen(){
   const k = {
     ovens: mins($("ovens").value), hobs: mins($("hobs").value),
@@ -643,7 +675,7 @@ function saveKitchen(){
     tempUnit: currentTempUnit()
   };
   localStorage.setItem("servesync-kitchen", JSON.stringify(k));
-  $("kitchenCard").classList.add("hidden");
+  closeSettings();
 }
 function loadKitchen(){
   const raw=localStorage.getItem("servesync-kitchen");
@@ -656,9 +688,26 @@ function loadKitchen(){
 }
 loadKitchen();
 syncTempUI();
+
+// First run only: kitchen configuration is required once, then it stays in Settings.
+(function servesyncFirstKitchenCheck(){
+  const hasKitchen = !!localStorage.getItem("servesync-kitchen");
+  if(!hasKitchen){
+    setTimeout(openSettings, 100);
+  }
+})();
 $("tempUnit").onchange=syncTempUI;
 
-$("kitchenBtn").onclick=()=> $("kitchenCard").classList.toggle("hidden");
+function openSettings(){
+  $("kitchenCard").classList.remove("hidden");
+  document.body.style.overflow="hidden";
+}
+function closeSettings(){
+  $("kitchenCard").classList.add("hidden");
+  document.body.style.overflow="";
+}
+$("kitchenBtn").onclick=openSettings;
+$("closeSettings").onclick=closeSettings;
 $("saveKitchen").onclick=saveKitchen;
 
 function setMode(m){

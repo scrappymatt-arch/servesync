@@ -1,12 +1,11 @@
-# ServeSync GitHub update
+# ServeSync settings-page update
 
-Upload these 7 files to the existing `servesync` GitHub repository and allow GitHub to replace the files with the same names.
+Main UI simplification:
+- Kitchen equipment and temperature preferences are no longer shown as part of the normal meal flow.
+- A **Settings** button opens a dedicated settings overlay.
+- On first use, Settings opens automatically so the kitchen can be configured once.
+- After settings are saved, the normal home screen stays focused on:
+  Ready by / Start at → Scan barcode → foods → Plan meal.
+- Existing saved kitchen data is retained/migrated where possible.
 
-You do NOT need to configure GitHub Pages again.
-
-This version is the barcode-first ServeSync sample:
-- no prep-time field in the normal flow
-- Scan barcode is the main add-food action
-- Open Food Facts is used for product identity
-- ServeSync stores confirmed cooking details separately
-- unknown products fall back to scanning the cooking-instructions panel
+Upload these same 7 files over the existing files in the GitHub repository. GitHub Pages does not need to be reconfigured.
