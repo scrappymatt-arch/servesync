@@ -1,4 +1,4 @@
-const CACHE_NAME = "servesync-settings-ui-v1";
+const CACHE_NAME = "servesync-preheat-fix-v1";
 const CORE = [
   "./",
   "./index.html",

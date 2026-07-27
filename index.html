@@ -572,7 +572,7 @@ textarea{
   <button class="btn ghost hidden" id="installPwaBtn">Install ServeSync</button>
 </section>
 
-<footer>Simplified beta · No account · No tracking</footer>
+<footer>Simplified beta 2 · No account · No tracking</footer>
 </div>
 
 <script src="https://unpkg.com/@zxing/browser@0.2.1"></script>
@@ -1539,21 +1539,6 @@ function fitsApplianceBooking(candidate, bookings, method){
   return true;
 }
 
-function applianceAlreadyHotAt(start,temp,bookings){
-  if(!temp) return false;
-  return bookings.some(b=>{
-    if(b.temp!==temp) return false;
-
-    // Another same-temperature dish is already cooking through this start time.
-    if(b.type==="cook" && b.start <= start && b.end >= start) return true;
-
-    // A preheat for the same temperature has just completed.
-    if(b.type==="preheat" && b.end.getTime()===start.getTime()) return true;
-
-    return false;
-  });
-}
-
 function latestApplianceSlot(endDeadline,duration,item,unitBookings){
   const maxBack=24*60;
 
@@ -1562,30 +1547,63 @@ function latestApplianceSlot(endDeadline,duration,item,unitBookings){
     const start=addMin(end,-duration);
     const cookBooking={start,end,temp:item.temp,type:"cook"};
 
-    if(!fitsApplianceBooking(cookBooking,unitBookings,item.method)) continue;
-
-    let preheatStart=null;
-    const wantsPreheat =
-      item.preheat &&
-      ["oven","airfryer"].includes(item.method) &&
-      item.temp;
-
-    if(wantsPreheat && !applianceAlreadyHotAt(start,item.temp,unitBookings)){
-      const candidatePreheat={
-        start:addMin(start,-10),
-        end:start,
-        temp:item.temp,
-        type:"preheat"
-      };
-
-      if(!fitsApplianceBooking(candidatePreheat,unitBookings,item.method)) continue;
-      preheatStart=candidatePreheat.start;
+    if(fitsApplianceBooking(cookBooking,unitBookings,item.method)){
+      return {start,end};
     }
-
-    return {start,end,preheatStart};
   }
 
   return null;
+}
+
+// After all cooking bookings are placed, derive heating instructions from the
+// appliance timeline. One oven preheat is created per temperature run, not per dish.
+function deriveHeatingPlan(resources,assigned){
+  const heatingByItem=new Map();
+
+  for(const method of ["oven","airfryer"]){
+    const units=resources[method]||[];
+
+    units.forEach((bookings,unit)=>{
+      const cooks=bookings
+        .filter(b=>b.type==="cook")
+        .sort((a,b)=>a.start-b.start || a.end-b.end);
+
+      let currentTemp=null;
+
+      for(let i=0;i<cooks.length;i++){
+        const booking=cooks[i];
+        const item=assigned.find(a=>a.id===booking.itemId);
+        if(!item || !item.temp) continue;
+
+        // First use of this appliance, or a real temperature change.
+        if(currentTemp===null || currentTemp!==item.temp){
+          const heatStart=addMin(booking.start,-10);
+
+          // Check that the 10-minute heat-up window does not overlap a previous
+          // incompatible booking on the same appliance.
+          const previous=cooks
+            .filter(b=>b.end<=booking.start && b!==booking)
+            .sort((a,b)=>b.end-a.end)[0] || null;
+
+          const effectiveStart = previous && previous.end > heatStart
+            ? previous.end
+            : heatStart;
+
+          heatingByItem.set(item.id,{
+            start:effectiveStart,
+            end:booking.start,
+            temp:item.temp,
+            method,
+            unit
+          });
+
+          currentTemp=item.temp;
+        }
+      }
+    });
+  }
+
+  return heatingByItem;
 }
 
 function fitsCookBooking(candidate,cookBookings){
@@ -1692,16 +1710,6 @@ function createBackwardPlan(serveTime){
 
     const unitBookings=resources[item.method][best.unit];
 
-    if(best.preheatStart){
-      unitBookings.push({
-        start:best.preheatStart,
-        end:best.start,
-        temp:item.temp,
-        type:"preheat",
-        itemId:item.id
-      });
-    }
-
     unitBookings.push({
       start:best.start,
       end:best.end,
@@ -1715,7 +1723,7 @@ function createBackwardPlan(serveTime){
       unit:best.unit,
       cookStart:best.start,
       cookEnd:best.end,
-      preheatStart:best.preheatStart,
+      preheatStart:null,
       prepStart:null,
       prepEnd:null
     });
@@ -1775,6 +1783,17 @@ function createBackwardPlan(serveTime){
         preheatStart:null,
         activeOnly:true
       });
+    }
+  }
+
+  // Derive oven/air-fryer heating from the appliance timeline.
+  // This creates one preheat per temperature run rather than one per food.
+  const heatingPlan=deriveHeatingPlan(resources,assigned);
+  for(const a of assigned){
+    const heat=heatingPlan.get(a.id);
+    if(heat){
+      a.preheatStart=heat.start;
+      a.preheatEnd=heat.end;
     }
   }
 
