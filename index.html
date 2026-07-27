@@ -149,6 +149,20 @@ textarea{
   font-size:.9rem;
 }
 
+
+.barcode-stage{
+  border:1px solid var(--line); border-radius:16px; overflow:hidden;
+  background:#111; margin-top:12px; position:relative;
+}
+#barcodeVideo{display:block;width:100%;min-height:220px;max-height:420px;object-fit:cover;background:#111}
+.scan-line{position:absolute;left:12%;right:12%;top:50%;border-top:3px solid #ff7a32;box-shadow:0 0 10px rgba(255,122,50,.7)}
+.product-card{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}
+.product-card img{width:76px;height:76px;border-radius:10px;object-fit:contain;background:#f8f4ef}
+.product-card .pname{font-weight:850;font-size:1.05rem}
+.product-card .brand{color:var(--muted);font-size:.88rem}
+.known-badge{display:inline-block;border-radius:999px;padding:5px 9px;background:#eaf7f0;color:var(--good);font-size:.8rem;font-weight:750;margin-top:5px}
+.unknown-badge{display:inline-block;border-radius:999px;padding:5px 9px;background:#fff2dd;color:var(--warn);font-size:.8rem;font-weight:750;margin-top:5px}
+
 </style>
 
 <link rel="manifest" href="manifest.webmanifest">
@@ -172,7 +186,7 @@ textarea{
 
 <section class="card" id="kitchenCard">
   <h2>My Kitchen</h2>
-  <p class="muted">Set this once. ServeSync remembers the equipment you have. For now it assumes one person is doing the hands-on preparation, while appliances can run in parallel.</p>
+  <p class="muted">Set this once. ServeSync remembers the equipment you have.</p>
   <div class="grid4">
     <div class="kitchen-count"><span>Ovens</span><input id="ovens" type="number" min="0" max="4" value="1"></div>
     <div class="kitchen-count"><span>Hob rings</span><input id="hobs" type="number" min="0" max="8" value="4"></div>
@@ -222,14 +236,15 @@ textarea{
   <div class="row" style="align-items:flex-start">
     <div>
       <h2 style="margin-bottom:3px">What are you cooking?</h2>
-      <div class="muted">Add manually or scan the cooking instructions on the packet.</div>
+      <div class="muted">Scan the barcode first. Only scan the cooking instructions if ServeSync does not already know them.</div>
     </div>
     <button class="btn ghost" id="sampleBtn" style="flex:0 0 auto">Load sample meal</button>
   </div>
 
   <div class="actions" style="margin-top:14px">
-    <button class="btn primary big" id="addItemBtn">＋ Add food</button>
-    <button class="btn scan big" id="scanBtn">📷 Scan packet</button>
+    <button class="btn primary big" id="barcodeBtn">▦ Scan barcode</button>
+    <button class="btn ghost big" id="addItemBtn">＋ Add manually</button>
+    <button class="btn scan big" id="scanBtn">📷 Scan instructions</button>
   </div>
 
   <div id="itemsList" style="margin-top:12px"></div>
@@ -249,7 +264,6 @@ textarea{
         <option value="hob">Hob</option>
         <option value="airfryer">Air fryer</option>
         <option value="microwave">Microwave</option>
-        <option value="none">No appliance / prep only</option>
       </select>
     </div>
     <div>
@@ -259,10 +273,6 @@ textarea{
     <div id="tempWrap">
       <label id="tempLabel">Temperature °C</label>
       <input id="itemTemp" type="number" min="50" max="600" value="200">
-    </div>
-    <div>
-      <label>Prep time (optional)</label>
-      <input id="itemPrep" type="number" min="0" max="180" value="0">
     </div>
     <div>
       <label>Rest time (optional)</label>
@@ -277,6 +287,90 @@ textarea{
     <button class="btn primary" id="saveItem">Add to meal</button>
     <button class="btn ghost" id="cancelItem">Cancel</button>
   </div>
+</section>
+
+<section class="card hidden" id="barcodeCard">
+  <div class="row" style="align-items:flex-start">
+    <div>
+      <h2 style="margin-bottom:3px">▦ Scan barcode</h2>
+      <div class="muted">Point the camera at the supermarket barcode. ServeSync will identify the product, then check whether its cooking instructions are already known.</div>
+    </div>
+    <button class="btn ghost" id="closeBarcode" style="flex:0 0 auto">Close</button>
+  </div>
+
+  <div class="barcode-stage hidden" id="barcodeStage">
+    <video id="barcodeVideo" playsinline muted></video>
+    <div class="scan-line"></div>
+  </div>
+
+  <div class="actions" style="margin-top:12px">
+    <button class="btn primary" id="startBarcodeCamera">Open camera scanner</button>
+    <button class="btn ghost hidden" id="stopBarcodeCamera">Stop camera</button>
+  </div>
+
+  <div style="margin-top:14px">
+    <label>Or enter the barcode number</label>
+    <div class="row">
+      <input id="barcodeInput" inputmode="numeric" autocomplete="off" placeholder="e.g. 5012345678900">
+      <button class="btn secondary" id="lookupBarcode" style="flex:0 0 auto">Look up</button>
+    </div>
+  </div>
+
+  <button class="btn ghost small" id="demoBarcode" style="margin-top:10px">Try sample barcode</button>
+
+  <div id="barcodeStatus"></div>
+
+  <div id="barcodeProduct" class="hidden">
+    <div class="product-card">
+      <img id="barcodeProductImage" class="hidden" alt="">
+      <div>
+        <div id="barcodeProductName" class="pname">Product</div>
+        <div id="barcodeProductBrand" class="brand"></div>
+        <div id="barcodeKnownBadge"></div>
+      </div>
+    </div>
+
+    <div id="barcodeCookFields" class="scan-result">
+      <h3 style="margin-top:0">Cooking details</h3>
+      <div class="grid">
+        <div>
+          <label>Cooking method</label>
+          <select id="barcodeMethod">
+            <option value="">Not known yet</option>
+            <option value="oven">Oven</option>
+            <option value="hob">Hob</option>
+            <option value="airfryer">Air fryer</option>
+            <option value="microwave">Microwave</option>
+          </select>
+        </div>
+        <div>
+          <label>Cook time (minutes)</label>
+          <input id="barcodeCook" type="number" min="1" max="600" placeholder="Not known yet">
+        </div>
+        <div id="barcodeTempWrap">
+          <label id="barcodeTempLabel">Temperature °C</label>
+          <input id="barcodeTemp" type="number" min="50" max="600" placeholder="Not known yet">
+        </div>
+        <div>
+          <label>Rest time (optional)</label>
+          <input id="barcodeRest" type="number" min="0" max="180" value="0">
+        </div>
+      </div>
+
+      <div id="barcodeHelp" class="status warn" style="margin-top:12px">
+        Cooking instructions are not known for this barcode yet.
+      </div>
+
+      <div class="actions" style="margin-top:12px">
+        <button class="btn scan" id="barcodeScanInstructions">📷 Scan cooking instructions</button>
+        <button class="btn primary" id="barcodeAddMeal">✓ Add to meal</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="muted small" style="margin-top:14px">
+    The barcode identifies the product. Product identity is looked up using Open Food Facts. Cooking details are stored separately in ServeSync after you confirm them.
+  </p>
 </section>
 
 <section class="card hidden" id="scanCard">
@@ -376,7 +470,6 @@ textarea{
 </section>
 
 <section class="card">
-  <p class="muted small">ServeSync assumes one cook for hands-on prep. Appliances can preheat and cook while you are preparing something else.</p>
   <button class="btn primary big" id="planBtn" style="width:100%">Plan my meal</button>
   <div id="planStatus"></div>
 </section>
@@ -456,9 +549,10 @@ textarea{
   <button class="btn ghost hidden" id="installPwaBtn">Install ServeSync</button>
 </section>
 
-<footer>PWA beta · No account · No tracking</footer>
+<footer>Barcode-first sample · No account · No tracking</footer>
 </div>
 
+<script src="https://unpkg.com/@zxing/browser@0.2.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
 const $ = id => document.getElementById(id);
@@ -592,14 +686,14 @@ function openEditor(index=null){
   if(index===null){
     $("editorTitle").textContent="Add food";
     $("itemName").value=""; $("itemMethod").value="oven"; $("itemCook").value=20;
-    $("itemTemp").value=currentTempUnit()==="F" ? 400 : 200; $("itemPrep").value=0; $("itemRest").value=0;
+    $("itemTemp").value=currentTempUnit()==="F" ? 400 : 200; $("itemRest").value=0;
     $("itemPreheat").checked=true; $("itemFavourite").checked=false;
     $("saveItem").textContent="Add to meal";
   } else {
     const x=items[index];
     $("editorTitle").textContent="Edit food";
     $("itemName").value=x.name; $("itemMethod").value=x.method; $("itemCook").value=x.cook;
-    $("itemTemp").value=x.temp ? displayTemp(x.temp) : (currentTempUnit()==="F" ? 400 : 200); $("itemPrep").value=x.prep||0; $("itemRest").value=x.rest||0;
+    $("itemTemp").value=x.temp ? displayTemp(x.temp) : (currentTempUnit()==="F" ? 400 : 200); $("itemRest").value=x.rest||0;
     $("itemPreheat").checked=!!x.preheat; $("itemFavourite").checked=false;
     $("saveItem").textContent="Save changes";
   }
@@ -608,6 +702,244 @@ function openEditor(index=null){
 }
 $("addItemBtn").onclick=()=>openEditor();
 $("cancelItem").onclick=()=>{$("itemEditor").classList.add("hidden"); editingIndex=null};
+
+const SERVESYNC_COOK_DB_KEY="servesync-cooking-db-v1";
+let activeBarcode="";
+let activeBarcodeProduct=null;
+let barcodeReader=null;
+let barcodeControls=null;
+
+function loadCookingDb(){
+  try{return JSON.parse(localStorage.getItem(SERVESYNC_COOK_DB_KEY)||"{}");}
+  catch(e){return {};}
+}
+function saveCookingDb(db){
+  localStorage.setItem(SERVESYNC_COOK_DB_KEY,JSON.stringify(db));
+}
+function cookingRecordFor(code){
+  return loadCookingDb()[String(code)]||null;
+}
+function saveCookingRecord(code,record){
+  const db=loadCookingDb();
+  db[String(code)]={...record,updatedAt:new Date().toISOString()};
+  saveCookingDb(db);
+}
+
+function openBarcodeScanner(){
+  $("barcodeCard").classList.remove("hidden");
+  $("barcodeStatus").innerHTML="";
+  $("barcodeCard").scrollIntoView({behavior:"smooth",block:"start"});
+}
+async function stopBarcodeScan(){
+  try{ if(barcodeControls){ barcodeControls.stop(); barcodeControls=null; } }catch(e){}
+  $("barcodeStage").classList.add("hidden");
+  $("startBarcodeCamera").classList.remove("hidden");
+  $("stopBarcodeCamera").classList.add("hidden");
+}
+$("barcodeBtn").onclick=openBarcodeScanner;
+$("closeBarcode").onclick=async()=>{ await stopBarcodeScan(); $("barcodeCard").classList.add("hidden"); };
+
+function normaliseBarcode(value){
+  return String(value||"").replace(/[^\d]/g,"").trim();
+}
+
+function showBarcodeStatus(htmlText,type="good"){
+  $("barcodeStatus").innerHTML=`<div class="status ${type}" style="margin-top:12px">${htmlText}</div>`;
+}
+
+function barcodeFieldsFromRecord(record){
+  $("barcodeMethod").value=record?.method||"";
+  $("barcodeCook").value=record?.cook||"";
+  $("barcodeRest").value=record?.rest||0;
+  const unit=currentTempUnit();
+  $("barcodeTempLabel").textContent=`Temperature °${unit}`;
+  $("barcodeTemp").value=record?.temp ? displayTemp(record.temp) : "";
+  updateBarcodeTempVisibility();
+}
+
+function updateBarcodeTempVisibility(){
+  const method=$("barcodeMethod").value;
+  $("barcodeTempWrap").classList.toggle("hidden",!["oven","airfryer"].includes(method));
+}
+$("barcodeMethod").onchange=updateBarcodeTempVisibility;
+
+function renderBarcodeProduct(code,product,record,source="lookup"){
+  activeBarcode=String(code);
+  activeBarcodeProduct=product||{};
+  $("barcodeProduct").classList.remove("hidden");
+
+  const name=product?.product_name || record?.name || "Unknown product";
+  const brand=product?.brands || "";
+  $("barcodeProductName").textContent=name;
+  $("barcodeProductBrand").textContent=brand ? `${brand} · barcode ${code}` : `barcode ${code}`;
+
+  const img=product?.image_front_small_url || "";
+  if(img){
+    $("barcodeProductImage").src=img;
+    $("barcodeProductImage").classList.remove("hidden");
+  }else{
+    $("barcodeProductImage").classList.add("hidden");
+  }
+
+  barcodeFieldsFromRecord(record);
+
+  if(record){
+    $("barcodeKnownBadge").innerHTML='<span class="known-badge">✓ Cooking details already known</span>';
+    $("barcodeHelp").className="status good";
+    $("barcodeHelp").innerHTML="ServeSync already has confirmed cooking details for this barcode on this device. Check them, then add the item.";
+  }else{
+    $("barcodeKnownBadge").innerHTML='<span class="unknown-badge">Cooking details needed</span>';
+    $("barcodeHelp").className="status warn";
+    $("barcodeHelp").innerHTML="Product identified, but ServeSync does not yet know how to cook it. Scan the cooking instructions once, then confirm them.";
+  }
+}
+
+async function lookupBarcodeCode(rawCode){
+  const code=normaliseBarcode(rawCode);
+  if(!code){
+    showBarcodeStatus("Enter or scan a barcode first.","bad");
+    return;
+  }
+
+  await stopBarcodeScan();
+  $("barcodeInput").value=code;
+  showBarcodeStatus(`Looking up barcode <strong>${escapeHtml(code)}</strong>…`,"good");
+
+  const localRecord=cookingRecordFor(code);
+
+  // Demo record lets the new flow be tested immediately without relying on a network/database match.
+  if(code==="9990000000001"){
+    const demoProduct={
+      product_name:"Sample Pepperoni Pizza",
+      brands:"ServeSync demo"
+    };
+    const demoRecord=localRecord || {name:"Sample Pepperoni Pizza",method:"oven",cook:15,temp:200,rest:0,preheat:true};
+    renderBarcodeProduct(code,demoProduct,demoRecord,"demo");
+    showBarcodeStatus("Sample barcode recognised. This demonstrates the instant-known-product flow.","good");
+    return;
+  }
+
+  try{
+    const url=`https://world.openfoodfacts.org/api/v3/product/${encodeURIComponent(code)}?fields=code,product_name,brands,image_front_small_url`;
+    const response=await fetch(url,{headers:{"Accept":"application/json"}});
+    if(!response.ok){
+      throw new Error(response.status===404 ? "Product was not found in Open Food Facts." : `Product lookup failed (${response.status}).`);
+    }
+    const data=await response.json();
+    const product=data?.product || {};
+    renderBarcodeProduct(code,product,localRecord,"openfoodfacts");
+
+    if(product.product_name){
+      showBarcodeStatus(`Found <strong>${escapeHtml(product.product_name)}</strong>.`,"good");
+    }else{
+      showBarcodeStatus("Barcode found, but the product name is missing. You can still scan the cooking instructions.","warn");
+    }
+  }catch(err){
+    // The local ServeSync cooking cache can still work if OFF/network is unavailable.
+    if(localRecord){
+      renderBarcodeProduct(code,{product_name:localRecord.name||"Saved product"},localRecord,"local");
+      showBarcodeStatus("Could not reach the product database, but ServeSync already knows this barcode on this device.","warn");
+    }else{
+      renderBarcodeProduct(code,{product_name:"Unknown product"},null,"unknown");
+      showBarcodeStatus(`${escapeHtml(err?.message||"Product lookup failed")} You can still scan the cooking instructions and save this barcode locally.`,"warn");
+    }
+  }
+}
+
+$("lookupBarcode").onclick=()=>lookupBarcodeCode($("barcodeInput").value);
+$("barcodeInput").addEventListener("keydown",ev=>{
+  if(ev.key==="Enter") lookupBarcodeCode($("barcodeInput").value);
+});
+$("demoBarcode").onclick=()=>lookupBarcodeCode("9990000000001");
+
+$("startBarcodeCamera").onclick=async()=>{
+  $("barcodeStatus").innerHTML="";
+  try{
+    if(typeof ZXingBrowser==="undefined"){
+      throw new Error("The barcode-scanning library could not load. Enter the barcode number manually instead.");
+    }
+
+    barcodeReader=new ZXingBrowser.BrowserMultiFormatReader();
+    $("barcodeStage").classList.remove("hidden");
+    $("startBarcodeCamera").classList.add("hidden");
+    $("stopBarcodeCamera").classList.remove("hidden");
+    showBarcodeStatus("Point the rear camera at the barcode.","good");
+
+    const devices=await ZXingBrowser.BrowserMultiFormatReader.listVideoInputDevices();
+    let selected=null;
+    if(devices?.length){
+      selected=devices.find(d=>/back|rear|environment/i.test(d.label||"")) || devices[devices.length-1];
+    }
+
+    barcodeControls=await barcodeReader.decodeFromVideoDevice(
+      selected ? selected.deviceId : undefined,
+      $("barcodeVideo"),
+      async(result,error,controls)=>{
+        if(result){
+          const text=result.getText ? result.getText() : String(result.text||result);
+          if(text){
+            try{ controls?.stop(); }catch(e){}
+            barcodeControls=null;
+            if(navigator.vibrate) try{navigator.vibrate(100);}catch(e){}
+            await lookupBarcodeCode(text);
+          }
+        }
+      }
+    );
+  }catch(err){
+    await stopBarcodeScan();
+    showBarcodeStatus(escapeHtml(err?.message||"Camera barcode scanning could not start. Enter the barcode manually instead."),"warn");
+  }
+};
+$("stopBarcodeCamera").onclick=stopBarcodeScan;
+
+function barcodeItemFromFields(){
+  const method=$("barcodeMethod").value;
+  const tempValue=$("barcodeTemp").value;
+  const name=(activeBarcodeProduct?.product_name || cookingRecordFor(activeBarcode)?.name || "Food").trim();
+  return {
+    id:crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
+    barcode:activeBarcode,
+    name,
+    method,
+    cook:mins($("barcodeCook").value),
+    temp:["oven","airfryer"].includes(method) && tempValue!=="" ? inputTempToC(tempValue) : null,
+    prep:0,
+    rest:mins($("barcodeRest").value),
+    preheat:["oven","airfryer"].includes(method)
+  };
+}
+
+$("barcodeAddMeal").onclick=()=>{
+  const x=barcodeItemFromFields();
+  if(!activeBarcode){ alert("Scan or enter a barcode first."); return; }
+  if(!x.method){ alert("Confirm the cooking method first."); return; }
+  if(!x.cook){ alert("Confirm the cooking time first."); return; }
+  if(["oven","airfryer"].includes(x.method) && !x.temp){
+    alert("Confirm the cooking temperature first.");
+    return;
+  }
+
+  items.push(x);
+  saveCookingRecord(activeBarcode,{
+    name:x.name, method:x.method, cook:x.cook, temp:x.temp,
+    rest:x.rest, preheat:x.preheat
+  });
+  renderItems();
+  $("barcodeCard").classList.add("hidden");
+  showBarcodeStatus("Saved.");
+};
+
+$("barcodeScanInstructions").onclick=()=>{
+  if(!activeBarcode){ alert("Scan or enter the barcode first."); return; }
+
+  // Pass the barcode/product context into the existing crop + OCR instruction scanner.
+  $("barcodeCard").classList.add("hidden");
+  openScanner();
+  $("scanName").value=activeBarcodeProduct?.product_name || "";
+  $("scanSourceNote").textContent=`Cooking instructions will be linked to barcode ${activeBarcode}.`;
+};
+
 let scanImageFile=null;
 let lastScanParsed=null;
 let scanImage=null;
@@ -924,7 +1256,7 @@ function parsePacketText(raw){
 function renderScanResult(parsed){
   lastScanParsed=parsed;
   $("scanResult").classList.remove("hidden");
-  $("scanName").value=parsed.name||"";
+  $("scanName").value=(activeBarcodeProduct?.product_name || parsed.name || "");
   $("scanMethod").value=parsed.method||"";
   $("scanCook").value=parsed.cook||"";
   $("scanPreheat").checked=["oven","airfryer"].includes(parsed.method);
@@ -1022,6 +1354,14 @@ $("addScannedItem").onclick=()=>{
     return;
   }
   items.push(x);
+
+  if(activeBarcode){
+    saveCookingRecord(activeBarcode,{
+      name:x.name, method:x.method, cook:x.cook, temp:x.temp,
+      rest:x.rest, preheat:x.preheat
+    });
+  }
+
   renderItems();
   $("scanCard").classList.add("hidden");
 };
@@ -1036,7 +1376,6 @@ $("editScannedItem").onclick=()=>{
   $("itemMethod").value=x.method||"oven";
   $("itemCook").value=x.cook||20;
   $("itemTemp").value=x.temp ? displayTemp(x.temp) : (currentTempUnit()==="F" ? 400 : 200);
-  $("itemPrep").value=0;
   $("itemRest").value=0;
   $("itemPreheat").checked=x.preheat;
   $("itemFavourite").checked=false;
@@ -1052,7 +1391,7 @@ function currentItemFromForm(){
     method: $("itemMethod").value,
     cook: mins($("itemCook").value),
     temp: ["oven","airfryer"].includes($("itemMethod").value) ? inputTempToC($("itemTemp").value) : null,
-    prep: mins($("itemPrep").value),
+    prep: 0,
     rest: mins($("itemRest").value),
     preheat: ["oven","airfryer"].includes($("itemMethod").value) ? $("itemPreheat").checked : false
   };
@@ -1060,7 +1399,7 @@ function currentItemFromForm(){
 $("saveItem").onclick=()=>{
   const x=currentItemFromForm();
   if(!x.name){ alert("Give the item a name first."); return; }
-  if(x.cook===0 && x.prep===0){ alert("Add a cooking or preparation time."); return; }
+  if(x.cook===0){ alert("Add a cooking time."); return; }
   if(editingIndex===null) items.push(x); else { x.id=items[editingIndex].id; items[editingIndex]=x; }
   if($("itemFavourite").checked){
     const favs=JSON.parse(localStorage.getItem("servesync-favs")||"[]");
@@ -1076,7 +1415,7 @@ function renderItems(){
   host.innerHTML=items.map((x,i)=>`
     <div class="item">
       <div><strong>${escapeHtml(x.name)}</strong>
-      <div class="meta">${methodLabel[x.method]}${x.temp?` · ${fmtTemp(x.temp)}`:""} · cook ${x.cook}m${x.prep?` · prep ${x.prep}m`:""}${x.rest?` · rest ${x.rest}m`:""}</div></div>
+      <div class="meta">${methodLabel[x.method]}${x.temp?` · ${fmtTemp(x.temp)}`:""} · cook ${x.cook}m${x.rest?` · rest ${x.rest}m`:""}</div></div>
       <div>
         <button class="iconbtn" onclick="openEditor(${i})">Edit</button>
         <button class="iconbtn" onclick="removeItem(${i})">×</button>
@@ -1101,10 +1440,10 @@ renderItems(); renderFavourites();
 
 $("sampleBtn").onclick=()=>{
   items=[
-    {id:"c",name:"Roast chicken",method:"oven",cook:80,temp:200,prep:10,rest:15,preheat:true},
-    {id:"p",name:"Roast potatoes",method:"oven",cook:50,temp:200,prep:10,rest:0,preheat:false},
-    {id:"y",name:"Yorkshire puddings",method:"oven",cook:20,temp:200,prep:5,rest:0,preheat:false},
-    {id:"ca",name:"Carrots",method:"hob",cook:15,temp:null,prep:5,rest:0,preheat:false},
+    {id:"c",name:"Roast chicken",method:"oven",cook:80,temp:200,prep:0,rest:15,preheat:true},
+    {id:"p",name:"Roast potatoes",method:"oven",cook:50,temp:200,prep:0,rest:0,preheat:false},
+    {id:"y",name:"Yorkshire puddings",method:"oven",cook:20,temp:200,prep:0,rest:0,preheat:false},
+    {id:"ca",name:"Carrots",method:"hob",cook:15,temp:null,prep:0,rest:0,preheat:false},
     {id:"pe",name:"Peas",method:"hob",cook:5,temp:null,prep:0,rest:0,preheat:false}
   ];
   renderItems();

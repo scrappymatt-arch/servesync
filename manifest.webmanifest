@@ -1,7 +1,7 @@
 {
   "name": "ServeSync",
   "short_name": "ServeSync",
-  "description": "Everything ready together. Plan a meal so every item finishes at the right time.",
+  "description": "Everything ready together.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
