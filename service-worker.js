@@ -1,4 +1,4 @@
-const CACHE_NAME = "servesync-v3-4";
+const CACHE_NAME = "servesync-v3-6";
 const CORE = [
   "./",
   "./index.html",

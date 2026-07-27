@@ -1,12 +1,19 @@
-# ServeSync v3.4
+# ServeSync v3.6
 
-This build adds visible version numbering.
+Changes in this build:
 
-The version is shown at the top beside the ServeSync name so it is easy to confirm which build is running.
+- Added **Cancel cooking** to hands-free cooking mode.
+- Cancel asks for confirmation before doing anything.
+- Confirming cancel:
+  - stops the current cooking timer;
+  - turns alerts off;
+  - stops any spoken prompt;
+  - releases the screen-awake lock;
+  - closes the active cooking plan;
+  - returns to meal setup;
+  - keeps all food items already entered.
+- Alert toggle wording is explicitly:
+  - **Alerts are On**
+  - **Alerts are Off**
 
-From this build onward:
-- every ServeSync update gets a new visible version number;
-- the service-worker cache name is also changed on each release;
-- GitHub update bundles will use the same version number.
-
-Current build: **v3.4**
+Current build: **v3.6**

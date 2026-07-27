@@ -187,6 +187,14 @@ textarea{
   letter-spacing:.02em;
 }
 
+
+.btn.danger{
+  background:#fff4f1;
+  border-color:#e2b9ab;
+  color:#9a351d;
+}
+.btn.danger:hover{background:#fce9e3}
+
 </style>
 
 <link rel="manifest" href="manifest.webmanifest">
@@ -202,7 +210,7 @@ textarea{
 <div class="app">
 <header>
   <div class="brand">
-    <h1>🍽️ ServeSync <span class="version-badge">v3.4</span></h1>
+    <h1>🍽️ ServeSync <span class="version-badge">v3.6</span></h1>
     <p>Everything ready together.</p>
   </div>
   <button class="btn ghost" id="kitchenBtn">⚙ Settings</button>
@@ -571,8 +579,10 @@ textarea{
     <div class="overlay-actions">
       <button class="btn primary big" id="overlayDone">✓ Done</button>
       <button class="btn ghost big" id="overlayLate">I'm late</button>
-      <button class="btn ghost big" id="overlayAlerts">🔔 Alerts</button>
+      <button class="btn ghost big" id="overlayAlerts">🔔 Alerts are Off</button>
     </div>
+
+    <button class="btn danger big" id="cancelCooking" style="width:100%;margin-top:12px">Cancel cooking</button>
 
     <div id="overlayStatus"></div>
     <div class="handsfree-note">With alerts on, you do not need to tap Done for later alerts to sound. ServeSync follows the clock. Screen-awake mode stays active for the cooking session where supported.</div>
@@ -586,7 +596,7 @@ textarea{
   <button class="btn ghost hidden" id="installPwaBtn">Install ServeSync</button>
 </section>
 
-<footer>ServeSync v3.4 · No account · No tracking</footer>
+<footer>ServeSync v3.6 · No account · No tracking</footer>
 </div>
 
 <script src="https://unpkg.com/@zxing/browser@0.2.1"></script>
@@ -2164,7 +2174,7 @@ async function enableAlerts(showConfirmation=true){
     }
   }catch(e){}
 
-  $("overlayAlerts").textContent="🔔 Alerts on";
+  $("overlayAlerts").textContent="🔔 Alerts are On";
   if(showConfirmation){
     $("overlayStatus").innerHTML=`<div class="status good">${msg}</div>`;
     soundAlarm();
@@ -2173,7 +2183,7 @@ async function enableAlerts(showConfirmation=true){
 
 function disableAlerts(){
   alertsEnabled=false;
-  $("overlayAlerts").textContent="🔕 Alerts off";
+  $("overlayAlerts").textContent="🔕 Alerts are Off";
   $("overlayStatus").innerHTML='<div class="status good">Alerts are off. The live cooking screen will still follow the schedule.</div>';
 }
 
@@ -2190,7 +2200,7 @@ async function openHandsFreeMode(withAlerts){
   $("cookingOverlay").classList.remove("hidden");
   document.body.style.overflow="hidden";
   $("overlayStatus").innerHTML="";
-  $("overlayAlerts").textContent="🔕 Alerts off";
+  $("overlayAlerts").textContent="🔕 Alerts are Off";
   ensureAudio();
 
   if(keepAwakeEnabled){
@@ -2220,6 +2230,45 @@ $("closeHandsFree").onclick=async()=>{
   alertsEnabled=false;
   await releaseWakeLock();
 };
+
+
+async function cancelCookingSession(){
+  const confirmed=window.confirm(
+    "Are you sure you want to cancel cooking?\n\n" +
+    "This will stop the current cooking session and return to meal setup. " +
+    "Your food items will be kept."
+  );
+  if(!confirmed) return;
+
+  cookingModeActive=false;
+  alertsEnabled=false;
+  alertedEvents.clear();
+
+  if(cookingTimer){
+    clearInterval(cookingTimer);
+    cookingTimer=null;
+  }
+
+  try{
+    if("speechSynthesis" in window) speechSynthesis.cancel();
+  }catch(e){}
+
+  await releaseWakeLock();
+
+  // Cancel the active plan, but keep the foods the user has entered.
+  schedule=[];
+  $("cookingOverlay").classList.add("hidden");
+  $("cookingCard").classList.add("hidden");
+  $("scheduleCard").classList.add("hidden");
+  $("overlayStatus").innerHTML="";
+  $("planStatus").innerHTML=
+    '<div class="status warn"><strong>Cooking cancelled.</strong> Your food items are still here, ready to adjust or plan again.</div>';
+
+  document.body.style.overflow="";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+$("cancelCooking").onclick=cancelCookingSession;
 
 $("overlayAlerts").onclick=async()=>{
   if(alertsEnabled) disableAlerts();
