@@ -1,17 +1,13 @@
-# ServeSync v3.7
+# ServeSync v3.8
 
-This release applies the premium dark visual direction:
+Changes in this build:
 
-- graded near-black and charcoal background;
-- layered dark cards;
-- warm copper actions and highlights;
-- off-white primary text and softer grey secondary text;
-- matching dark/copper PWA icons and browser theme;
-- scanner, settings, cooking mode, statuses and cancel controls restyled consistently.
+- The **Ready by** time field is now compact instead of spanning the full card.
+- The **Start at** time field uses the same compact design.
+- The clock icon now sits close to the displayed time.
+- Clicking anywhere inside either compact time field opens the native time picker where supported.
+- All v3.7 dark charcoal and copper styling is retained.
 
-All ServeSync v3.6 behaviour is retained.
+Current build: **v3.8**
 
-Current build: **v3.7**
-
-Upload these 7 files over the existing files in the GitHub repository and commit.
-GitHub Pages does not need to be configured again.
+Upload these 7 files over the existing GitHub repository files and commit.

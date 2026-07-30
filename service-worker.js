@@ -1,4 +1,4 @@
-const CACHE_NAME = "servesync-v3-7-dark-theme";
+const CACHE_NAME = "servesync-v3-8-compact-time";
 const CORE = [
   "./",
   "./index.html",

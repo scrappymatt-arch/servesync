@@ -196,7 +196,7 @@ textarea{
 .btn.danger:hover{background:#fce9e3}
 
 
-/* ServeSync v3.7 — Premium Charcoal & Copper */
+/* ServeSync v3.8 — Premium Charcoal & Copper */
 :root{
   --bg:#080d10;--card:#141a1f;--ink:#f4f4f2;--muted:#a8afb5;
   --line:rgba(255,255,255,.105);--accent:#d47739;
@@ -306,6 +306,40 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
   }
 }
 
+
+/* ServeSync v3.8 — compact, fully tappable time controls */
+.time-entry-block{
+  width:min(100%,230px);
+}
+.time-entry-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.time-entry-row .compact-time-input{
+  flex:0 0 178px;
+}
+.time-entry-row #nowStart{
+  flex:0 0 auto;
+  padding:12px 14px;
+}
+.compact-time-input{
+  width:190px;
+  max-width:100%;
+  min-height:48px;
+  cursor:pointer;
+  font-weight:750;
+  font-variant-numeric:tabular-nums;
+}
+.compact-time-input::-webkit-calendar-picker-indicator{
+  cursor:pointer;
+  opacity:.9;
+}
+@media(max-width:390px){
+  .time-entry-block{width:100%}
+  .time-entry-row .compact-time-input{flex:1 1 auto;min-width:0}
+}
+
 </style>
 
 <link rel="manifest" href="manifest.webmanifest">
@@ -321,7 +355,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 <div class="app">
 <header>
   <div class="brand">
-    <h1>🍽️ ServeSync <span class="version-badge">v3.7</span></h1>
+    <h1>🍽️ ServeSync <span class="version-badge">v3.8</span></h1>
     <p>Everything ready together.</p>
   </div>
   <button class="btn ghost" id="kitchenBtn">⚙ Settings</button>
@@ -369,19 +403,19 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
   </div>
 
   <div id="readyControls" style="margin-top:14px">
-    <div>
-      <label>Meal ready by</label>
-      <input id="readyTime" type="time">
+    <div class="time-entry-block">
+      <label for="readyTime">Meal ready by</label>
+      <input id="readyTime" class="compact-time-input" type="time" aria-label="Meal ready by">
     </div>
     <p class="muted small">ServeSync will work backwards from this time and tell you when to start. If it is already too late, it will show the earliest realistic serving time.</p>
   </div>
 
   <div id="startControls" class="hidden" style="margin-top:14px">
-    <div style="max-width:420px">
-      <label>Start cooking at</label>
-      <div class="row">
-        <input id="startTimeOnly" type="time">
-        <button class="btn secondary" id="nowStart" style="flex:0 0 auto">Now</button>
+    <div class="time-entry-block">
+      <label for="startTimeOnly">Start cooking at</label>
+      <div class="time-entry-row">
+        <input id="startTimeOnly" class="compact-time-input" type="time" aria-label="Start cooking at">
+        <button class="btn secondary" id="nowStart">Now</button>
       </div>
       <p class="muted small">ServeSync will calculate the earliest time your meal can be ready.</p>
     </div>
@@ -707,7 +741,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
   <button class="btn ghost hidden" id="installPwaBtn">Install ServeSync</button>
 </section>
 
-<footer>ServeSync v3.7 · No account · No tracking</footer>
+<footer>ServeSync v3.8 · No account · No tracking</footer>
 </div>
 
 <script src="https://unpkg.com/@zxing/browser@0.2.1"></script>
@@ -854,6 +888,18 @@ function setMode(m){
 }
 $("modeReady").onclick=()=>setMode("ready");
 $("modeStart").onclick=()=>setMode("start");
+
+function enableWholeTimePicker(input){
+  if(!input) return;
+  input.addEventListener("click",()=>{
+    if(typeof input.showPicker==="function"){
+      try{ input.showPicker(); }catch(e){}
+    }
+  });
+}
+enableWholeTimePicker($("readyTime"));
+enableWholeTimePicker($("startTimeOnly"));
+
 $("nowStart").onclick=()=>{$("startTimeOnly").value=toClock(new Date())};
 
 function updateTempVisibility(){
