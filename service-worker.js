@@ -1,4 +1,4 @@
-const CACHE_NAME = "servesync-v3-6";
+const CACHE_NAME = "servesync-v3-7-dark-theme";
 const CORE = [
   "./",
   "./index.html",
@@ -26,9 +26,13 @@ self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
   event.respondWith(
     fetch(event.request).then(response => {
-      const copy=response.clone();
-      caches.open(CACHE_NAME).then(cache=>cache.put(event.request,copy)).catch(()=>{});
+      const copy = response.clone();
+      caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy)).catch(() => {});
       return response;
-    }).catch(() => caches.match(event.request).then(cached => cached || caches.match("./index.html")))
+    }).catch(() =>
+      caches.match(event.request).then(cached =>
+        cached || (event.request.mode === "navigate" ? caches.match("./index.html") : undefined)
+      )
+    )
   );
 });

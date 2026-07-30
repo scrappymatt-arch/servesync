@@ -1,19 +1,17 @@
-# ServeSync v3.6
+# ServeSync v3.7
 
-Changes in this build:
+This release applies the premium dark visual direction:
 
-- Added **Cancel cooking** to hands-free cooking mode.
-- Cancel asks for confirmation before doing anything.
-- Confirming cancel:
-  - stops the current cooking timer;
-  - turns alerts off;
-  - stops any spoken prompt;
-  - releases the screen-awake lock;
-  - closes the active cooking plan;
-  - returns to meal setup;
-  - keeps all food items already entered.
-- Alert toggle wording is explicitly:
-  - **Alerts are On**
-  - **Alerts are Off**
+- graded near-black and charcoal background;
+- layered dark cards;
+- warm copper actions and highlights;
+- off-white primary text and softer grey secondary text;
+- matching dark/copper PWA icons and browser theme;
+- scanner, settings, cooking mode, statuses and cancel controls restyled consistently.
 
-Current build: **v3.6**
+All ServeSync v3.6 behaviour is retained.
+
+Current build: **v3.7**
+
+Upload these 7 files over the existing files in the GitHub repository and commit.
+GitHub Pages does not need to be configured again.
