@@ -196,7 +196,7 @@ textarea{
 .btn.danger:hover{background:#fce9e3}
 
 
-/* ServeSync v3.8 — Premium Charcoal & Copper */
+/* ServeSync v4.0 — Premium Charcoal & Copper */
 :root{
   --bg:#080d10;--card:#141a1f;--ink:#f4f4f2;--muted:#a8afb5;
   --line:rgba(255,255,255,.105);--accent:#d47739;
@@ -307,7 +307,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 }
 
 
-/* ServeSync v3.8 — compact, fully tappable time controls */
+/* ServeSync v4.0 — compact, fully tappable time controls */
 .time-entry-block{
   width:min(100%,230px);
 }
@@ -340,6 +340,515 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
   .time-entry-row .compact-time-input{flex:1 1 auto;min-width:0}
 }
 
+
+/* ServeSync v4.0 — Light / Dark appearance switch */
+.appearance-setting{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:10px;
+}
+.appearance-choice{
+  font-weight:800;
+  color:var(--ink);
+}
+.theme-switch{
+  position:relative;
+  display:inline-block;
+  width:58px;
+  height:32px;
+  flex:0 0 auto;
+}
+.theme-switch input{
+  position:absolute;
+  opacity:0;
+  width:1px;
+  height:1px;
+}
+.theme-slider{
+  position:absolute;
+  inset:0;
+  cursor:pointer;
+  border-radius:999px;
+  background:#d9d3cc;
+  border:1px solid rgba(0,0,0,.12);
+  transition:.2s ease;
+}
+.theme-slider::before{
+  content:"";
+  position:absolute;
+  width:24px;
+  height:24px;
+  left:3px;
+  top:3px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.28);
+  transition:.2s ease;
+}
+.theme-switch input:checked + .theme-slider{
+  background:linear-gradient(135deg,#ed9457,#bd5225);
+  border-color:rgba(255,184,126,.28);
+}
+.theme-switch input:checked + .theme-slider::before{
+  transform:translateX(26px);
+}
+.theme-switch input:focus-visible + .theme-slider{
+  outline:3px solid rgba(212,119,57,.35);
+  outline-offset:3px;
+}
+
+/* Warm high-contrast light theme */
+html[data-theme="light"]{
+  color-scheme:light;
+  background:#f5eee6;
+}
+html[data-theme="light"] body{
+  --bg:#fff8f1;
+  --card:#ffffff;
+  --ink:#172033;
+  --muted:#607087;
+  --line:#dfd4ca;
+  --accent:#d0642e;
+  --accent-bright:#db7a44;
+  --accent2:#f4e5da;
+  --good:#2d7a4e;
+  --warn:#a46513;
+  --bad:#b94935;
+  --shadow:0 18px 46px rgba(83,56,39,.12);
+  color:#172033;
+  background:
+    radial-gradient(circle at 12% -5%,rgba(212,119,57,.12),transparent 30rem),
+    radial-gradient(circle at 100% 18%,rgba(121,150,166,.10),transparent 34rem),
+    linear-gradient(145deg,#fffaf5 0%,#f7efe7 52%,#eee6de 100%);
+  background-attachment:fixed;
+}
+html[data-theme="light"] .brand h1{color:#172033;text-shadow:none}
+html[data-theme="light"] .brand p{color:#607087}
+html[data-theme="light"] .card,
+html[data-theme="light"] .cooking-current,
+html[data-theme="light"] .upcoming-box,
+html[data-theme="light"] .product-card,
+html[data-theme="light"] .scan-result,
+html[data-theme="light"] .settings-card{
+  color:#172033;
+  background:linear-gradient(145deg,#ffffff,#fdfaf7);
+  border-color:#dfd4ca;
+  box-shadow:0 16px 38px rgba(83,56,39,.11),inset 0 1px 0 rgba(255,255,255,.8);
+}
+html[data-theme="light"] .card h2,
+html[data-theme="light"] .card h3,
+html[data-theme="light"] .cooking-current .instruction,
+html[data-theme="light"] .upcoming-box,
+html[data-theme="light"] .product-card,
+html[data-theme="light"] .appearance-choice{color:#172033}
+html[data-theme="light"] input,
+html[data-theme="light"] select,
+html[data-theme="light"] textarea{
+  color:#172033;
+  background:#fff;
+  border-color:#d7cbc0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75);
+}
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder{color:#8994a1}
+html[data-theme="light"] select option{color:#172033;background:#fff}
+html[data-theme="light"] .ghost{
+  color:#263443;
+  background:#faf7f3;
+  border-color:#d8cdc3;
+}
+html[data-theme="light"] .ghost:hover{background:#f3ece5}
+html[data-theme="light"] .secondary{
+  color:#9c451f;
+  background:#f7e6da;
+  border-color:#e6c6b3;
+}
+html[data-theme="light"] .mode{background:#eee5dd;border-color:#e4d8ce}
+html[data-theme="light"] .mode button{color:#604d41}
+html[data-theme="light"] .mode button.active{
+  color:#c45627;
+  background:#fff;
+  box-shadow:0 6px 16px rgba(83,56,39,.12);
+}
+html[data-theme="light"] .muted,
+html[data-theme="light"] .item .meta,
+html[data-theme="light"] .handsfree-note,
+html[data-theme="light"] footer{color:#607087}
+html[data-theme="light"] .pill{
+  color:#425160;
+  background:#f5f0eb;
+  border-color:#ddd2c8;
+}
+html[data-theme="light"] .item,
+html[data-theme="light"] .timeline .event .what,
+html[data-theme="light"] .upcoming-row{border-color:#e2d8cf}
+html[data-theme="light"] .iconbtn{
+  color:#263443;
+  background:#faf7f3;
+  border-color:#d8cdc3;
+}
+html[data-theme="light"] .kitchen-count{
+  color:#263443;
+  background:#fbf8f5;
+  border-color:#ddd2c8;
+}
+html[data-theme="light"] .scan{
+  color:#a84920;
+  background:#fffaf6;
+  border-color:#d5a283;
+}
+html[data-theme="light"] .scan-preview,
+html[data-theme="light"] .barcode-stage{
+  background:#eee7e0;
+  border-color:#d7cbc0;
+}
+html[data-theme="light"] .scan-result{
+  background:linear-gradient(145deg,#ffffff,#faf6f1);
+}
+html[data-theme="light"] .progressbar{background:#e5ddd6}
+html[data-theme="light"] .crop-help{
+  color:#7b492f;
+  background:#fff1e7;
+  border-color:#efcdb8;
+}
+html[data-theme="light"] .product-card img{background:#f5f1ed}
+html[data-theme="light"] .settings-overlay{
+  background:rgba(42,31,24,.42);
+  backdrop-filter:blur(7px);
+}
+html[data-theme="light"] .version-badge{
+  color:#9a431f;
+  background:#f4dfd2;
+  border-color:#e9c9b7;
+}
+html[data-theme="light"] .btn.danger{
+  color:#a53c26;
+  background:#fff4f1;
+  border-color:#e2b9ab;
+}
+html[data-theme="light"] .btn.danger:hover{background:#fce9e3}
+html[data-theme="light"] .cooking-overlay{
+  background:
+    radial-gradient(circle at 50% -15%,rgba(212,119,57,.14),transparent 34rem),
+    linear-gradient(145deg,#fffaf5,#f4ebe3 58%,#eae1d9);
+}
+html[data-theme="light"] .cooking-countdown{
+  color:#172033;
+  text-shadow:none;
+}
+html[data-theme="light"] .next-up-card{
+  color:#66361f;
+  background:linear-gradient(135deg,#f8e4d6,#fff5ee);
+  border-color:#e9c2aa;
+}
+html[data-theme="light"] .theme-slider{
+  background:#d9d3cc;
+  border-color:#c7bbb0;
+}
+
+
+/* ServeSync v4.0 — custom bottom-sheet time picker */
+.custom-time-trigger{
+  display:none;
+  width:190px;
+  max-width:100%;
+  min-height:48px;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:11px 14px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:13px;
+  color:var(--ink);
+  background:#0e1418;
+  cursor:pointer;
+  font:inherit;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+}
+.custom-time-trigger:hover{
+  border-color:rgba(212,119,57,.45);
+  background:#11191e;
+}
+.custom-time-trigger:focus-visible{
+  outline:3px solid rgba(212,119,57,.28);
+  outline-offset:2px;
+}
+.custom-time-value{
+  font-size:1.05rem;
+  letter-spacing:.03em;
+}
+.custom-time-icon{
+  display:grid;
+  place-items:center;
+  width:28px;
+  height:28px;
+  border-radius:9px;
+  color:#f1a162;
+  background:rgba(212,119,57,.11);
+  font-size:1.05rem;
+}
+html.custom-time-ready .native-time-value{
+  position:absolute !important;
+  width:1px !important;
+  height:1px !important;
+  overflow:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+html.custom-time-ready .custom-time-trigger{
+  display:flex;
+}
+.time-entry-row .custom-time-trigger{
+  flex:0 0 190px;
+}
+
+.time-picker-overlay{
+  position:fixed;
+  inset:0;
+  z-index:12000;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.68);
+  backdrop-filter:blur(10px);
+}
+.time-picker-overlay.hidden{
+  display:none;
+}
+.time-picker-sheet{
+  width:min(100%,520px);
+  max-height:min(92vh,720px);
+  overflow:auto;
+  padding:10px 20px 20px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:28px 28px 20px 20px;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 50% -15%,rgba(212,119,57,.15),transparent 24rem),
+    linear-gradient(145deg,#1c2329,#10161b);
+  box-shadow:
+    0 -18px 50px rgba(0,0,0,.46),
+    inset 0 1px 0 rgba(255,255,255,.045);
+  animation:timePickerRise .22s ease-out;
+}
+@keyframes timePickerRise{
+  from{transform:translateY(32px);opacity:.5}
+  to{transform:translateY(0);opacity:1}
+}
+.time-picker-handle{
+  width:46px;
+  height:5px;
+  margin:2px auto 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.22);
+}
+.time-picker-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+}
+.time-picker-header h2{
+  margin:3px 0 0;
+}
+.time-picker-close{
+  flex:0 0 auto;
+  min-width:44px;
+  min-height:44px;
+  padding:8px;
+  border-radius:14px;
+}
+.time-picker-display{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:22px 0 18px;
+  color:#fff7f1;
+  font-size:clamp(3.2rem,14vw,5.7rem);
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.025em;
+  font-variant-numeric:tabular-nums;
+  text-shadow:0 10px 30px rgba(0,0,0,.42);
+}
+.time-picker-colon{
+  padding:0 .1em .08em;
+  color:#e4874c;
+}
+.time-picker-controls{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:18px;
+  align-items:center;
+  padding:18px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:22px;
+  background:rgba(255,255,255,.025);
+}
+.time-picker-column{
+  display:grid;
+  justify-items:center;
+  gap:10px;
+}
+.time-picker-label{
+  color:var(--muted);
+  font-size:.78rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.time-step{
+  width:54px;
+  height:44px;
+  border-radius:14px;
+  border:1px solid rgba(212,119,57,.24);
+  color:#f1a162;
+  background:rgba(212,119,57,.10);
+  font:inherit;
+  font-size:1.55rem;
+  font-weight:700;
+  cursor:pointer;
+}
+.time-step:hover{
+  background:rgba(212,119,57,.18);
+}
+.time-step:active{
+  transform:scale(.96);
+}
+.time-step-value{
+  min-width:78px;
+  padding:13px 12px;
+  border-radius:16px;
+  color:#f8f4f0;
+  background:#0b1014;
+  border:1px solid rgba(255,255,255,.11);
+  text-align:center;
+  font-size:1.75rem;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+}
+.time-picker-divider{
+  width:1px;
+  height:118px;
+  background:linear-gradient(transparent,rgba(255,255,255,.14),transparent);
+}
+.time-picker-quick{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:14px;
+}
+.time-quick-chip{
+  flex:1 1 105px;
+  padding:10px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.11);
+  color:#dfe3e5;
+  background:rgba(255,255,255,.035);
+  font:inherit;
+  font-size:.86rem;
+  font-weight:750;
+  cursor:pointer;
+}
+.time-quick-chip:hover{
+  color:#f4b184;
+  border-color:rgba(212,119,57,.30);
+  background:rgba(212,119,57,.10);
+}
+.time-picker-actions{
+  display:grid;
+  grid-template-columns:1fr 1.35fr;
+  gap:10px;
+  margin-top:18px;
+}
+
+/* Light appearance */
+html[data-theme="light"] .custom-time-trigger{
+  color:#172033;
+  background:#fff;
+  border-color:#d7cbc0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75);
+}
+html[data-theme="light"] .custom-time-trigger:hover{
+  background:#fffaf6;
+  border-color:#d9a480;
+}
+html[data-theme="light"] .custom-time-icon{
+  color:#b95124;
+  background:#f8e7db;
+}
+html[data-theme="light"] .time-picker-overlay{
+  background:rgba(42,31,24,.48);
+}
+html[data-theme="light"] .time-picker-sheet{
+  color:#172033;
+  background:
+    radial-gradient(circle at 50% -15%,rgba(212,119,57,.13),transparent 24rem),
+    linear-gradient(145deg,#ffffff,#f5eee7);
+  border-color:#dacfc5;
+  box-shadow:0 -18px 50px rgba(65,42,28,.24),inset 0 1px 0 rgba(255,255,255,.8);
+}
+html[data-theme="light"] .time-picker-handle{
+  background:#b9aea4;
+}
+html[data-theme="light"] .time-picker-display{
+  color:#172033;
+  text-shadow:none;
+}
+html[data-theme="light"] .time-picker-controls{
+  background:#fbf7f3;
+  border-color:#e3d8ce;
+}
+html[data-theme="light"] .time-step{
+  color:#a84920;
+  background:#f8e7db;
+  border-color:#e8c7b2;
+}
+html[data-theme="light"] .time-step-value{
+  color:#172033;
+  background:#fff;
+  border-color:#d9cec4;
+}
+html[data-theme="light"] .time-picker-divider{
+  background:linear-gradient(transparent,#d7ccc2,transparent);
+}
+html[data-theme="light"] .time-quick-chip{
+  color:#425160;
+  background:#fff;
+  border-color:#ddd2c8;
+}
+html[data-theme="light"] .time-quick-chip:hover{
+  color:#9c451f;
+  background:#f8e7db;
+  border-color:#e1bda6;
+}
+
+@media(max-width:480px){
+  .time-picker-overlay{
+    padding:0;
+  }
+  .time-picker-sheet{
+    width:100%;
+    border-radius:26px 26px 0 0;
+    padding-bottom:max(20px,env(safe-area-inset-bottom));
+  }
+  .time-picker-controls{
+    gap:10px;
+    padding:14px 10px;
+  }
+  .time-picker-actions{
+    grid-template-columns:1fr 1.2fr;
+  }
+  .time-entry-row .custom-time-trigger{
+    flex:1 1 auto;
+    min-width:0;
+  }
+}
+
 </style>
 
 <link rel="manifest" href="manifest.webmanifest">
@@ -350,12 +859,29 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 <meta name="apple-mobile-web-app-title" content="ServeSync">
 <link rel="apple-touch-icon" href="icon-192.png">
 
+
+<script>
+(function(){
+  try{
+    const saved=localStorage.getItem("servesync-theme");
+    const systemDark=window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute(
+      "data-theme",
+      saved || (systemDark ? "dark" : "light")
+    );
+  }catch(e){
+    document.documentElement.setAttribute("data-theme","dark");
+  }
+})();
+</script>
+
 </head>
 <body>
 <div class="app">
 <header>
   <div class="brand">
-    <h1>🍽️ ServeSync <span class="version-badge">v3.8</span></h1>
+    <h1>🍽️ ServeSync <span class="version-badge">v4.0</span></h1>
     <p>Everything ready together.</p>
   </div>
   <button class="btn ghost" id="kitchenBtn">⚙ Settings</button>
@@ -368,10 +894,22 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
       <div class="row" style="align-items:flex-start">
       <div>
         <h2 style="margin-bottom:3px">Settings</h2>
-        <div class="muted">Your kitchen setup is saved on this device.</div>
+        <div class="muted">Your appearance and kitchen setup are saved on this device.</div>
       </div>
       <button class="btn ghost" id="closeSettings" style="flex:0 0 auto">Close</button>
     </div>
+
+    <h3>Appearance</h3>
+    <div class="appearance-setting">
+      <span class="appearance-choice">Light</span>
+      <label class="theme-switch" aria-label="Switch between light and dark mode">
+        <input id="darkModeToggle" type="checkbox">
+        <span class="theme-slider"></span>
+      </label>
+      <span class="appearance-choice">Dark</span>
+    </div>
+    <p class="muted small">ServeSync remembers this choice on this device.</p>
+
     <h3>My Kitchen</h3>
   <p class="muted">Set this once. You only need to return here when your equipment or temperature preference changes.</p>
   <div class="grid4">
@@ -404,17 +942,25 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 
   <div id="readyControls" style="margin-top:14px">
     <div class="time-entry-block">
-      <label for="readyTime">Meal ready by</label>
-      <input id="readyTime" class="compact-time-input" type="time" aria-label="Meal ready by">
+      <label for="readyTimeButton">Meal ready by</label>
+      <input id="readyTime" class="compact-time-input native-time-value" type="time" aria-label="Meal ready by">
+      <button class="custom-time-trigger" id="readyTimeButton" type="button" aria-haspopup="dialog">
+        <span class="custom-time-value" id="readyTimeDisplay">--:--</span>
+        <span class="custom-time-icon" aria-hidden="true">◷</span>
+      </button>
     </div>
     <p class="muted small">ServeSync will work backwards from this time and tell you when to start. If it is already too late, it will show the earliest realistic serving time.</p>
   </div>
 
   <div id="startControls" class="hidden" style="margin-top:14px">
     <div class="time-entry-block">
-      <label for="startTimeOnly">Start cooking at</label>
+      <label for="startTimeButton">Start cooking at</label>
       <div class="time-entry-row">
-        <input id="startTimeOnly" class="compact-time-input" type="time" aria-label="Start cooking at">
+        <input id="startTimeOnly" class="compact-time-input native-time-value" type="time" aria-label="Start cooking at">
+        <button class="custom-time-trigger" id="startTimeButton" type="button" aria-haspopup="dialog">
+          <span class="custom-time-value" id="startTimeDisplay">--:--</span>
+          <span class="custom-time-icon" aria-hidden="true">◷</span>
+        </button>
         <button class="btn secondary" id="nowStart">Now</button>
       </div>
       <p class="muted small">ServeSync will calculate the earliest time your meal can be ready.</p>
@@ -693,6 +1239,56 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
   </div>
 </section>
 
+
+<div id="timePickerOverlay" class="time-picker-overlay hidden" role="presentation">
+  <div class="time-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="timePickerTitle">
+    <div class="time-picker-handle" aria-hidden="true"></div>
+
+    <div class="time-picker-header">
+      <div>
+        <div class="muted small">Select a time</div>
+        <h2 id="timePickerTitle">Meal ready by</h2>
+      </div>
+      <button class="btn ghost time-picker-close" id="timePickerClose" type="button" aria-label="Close time picker">✕</button>
+    </div>
+
+    <div class="time-picker-display" aria-live="polite">
+      <span id="pickerHourDisplay">18</span>
+      <span class="time-picker-colon">:</span>
+      <span id="pickerMinuteDisplay">30</span>
+    </div>
+
+    <div class="time-picker-controls">
+      <div class="time-picker-column">
+        <div class="time-picker-label">Hour</div>
+        <button class="time-step" id="hourUp" type="button" aria-label="Increase hour">＋</button>
+        <div class="time-step-value" id="pickerHourValue">18</div>
+        <button class="time-step" id="hourDown" type="button" aria-label="Decrease hour">−</button>
+      </div>
+
+      <div class="time-picker-divider" aria-hidden="true"></div>
+
+      <div class="time-picker-column">
+        <div class="time-picker-label">Minute</div>
+        <button class="time-step" id="minuteUp" type="button" aria-label="Increase minutes">＋</button>
+        <div class="time-step-value" id="pickerMinuteValue">30</div>
+        <button class="time-step" id="minuteDown" type="button" aria-label="Decrease minutes">−</button>
+      </div>
+    </div>
+
+    <div class="time-picker-quick">
+      <button class="time-quick-chip" type="button" data-time-offset="30">In 30 min</button>
+      <button class="time-quick-chip" type="button" data-time-offset="60">In 1 hour</button>
+      <button class="time-quick-chip" type="button" data-time-offset="90">In 90 min</button>
+    </div>
+
+    <div class="time-picker-actions">
+      <button class="btn ghost big" id="timePickerCancel" type="button">Cancel</button>
+      <button class="btn primary big" id="timePickerConfirm" type="button">Set time</button>
+    </div>
+  </div>
+</div>
+
 <div id="cookingOverlay" class="cooking-overlay hidden" aria-live="polite">
   <div class="cooking-shell">
     <div class="cooking-topbar">
@@ -741,7 +1337,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
   <button class="btn ghost hidden" id="installPwaBtn">Install ServeSync</button>
 </section>
 
-<footer>ServeSync v3.8 · No account · No tracking</footer>
+<footer>ServeSync v4.0 · No account · No tracking</footer>
 </div>
 
 <script src="https://unpkg.com/@zxing/browser@0.2.1"></script>
@@ -837,6 +1433,39 @@ setDefaultTimes();
   }catch(e){}
 })();
 
+
+const SERVESYNC_THEME_KEY="servesync-theme";
+
+function applyServeSyncTheme(theme,persist=false){
+  const resolved=theme==="light" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme",resolved);
+
+  const toggle=$("darkModeToggle");
+  if(toggle) toggle.checked=resolved==="dark";
+
+  if(persist){
+    try{ localStorage.setItem(SERVESYNC_THEME_KEY,resolved); }catch(e){}
+  }
+}
+
+function initialiseThemeSetting(){
+  let saved=null;
+  try{ saved=localStorage.getItem(SERVESYNC_THEME_KEY); }catch(e){}
+  const systemDark=window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyServeSyncTheme(saved || (systemDark ? "dark" : "light"),false);
+}
+
+initialiseThemeSetting();
+
+$("darkModeToggle").onchange=()=>{
+  applyServeSyncTheme(
+    $("darkModeToggle").checked ? "dark" : "light",
+    true
+  );
+};
+
+
 function saveKitchen(){
   const k = {
     ovens: mins($("ovens").value), hobs: mins($("hobs").value),
@@ -889,18 +1518,141 @@ function setMode(m){
 $("modeReady").onclick=()=>setMode("ready");
 $("modeStart").onclick=()=>setMode("start");
 
-function enableWholeTimePicker(input){
-  if(!input) return;
-  input.addEventListener("click",()=>{
-    if(typeof input.showPicker==="function"){
-      try{ input.showPicker(); }catch(e){}
-    }
-  });
-}
-enableWholeTimePicker($("readyTime"));
-enableWholeTimePicker($("startTimeOnly"));
+let activeTimeInput=null;
+let activeTimeButton=null;
+let pickerMinutesSinceMidnight=0;
+let pickerPreviousBodyOverflow="";
 
-$("nowStart").onclick=()=>{$("startTimeOnly").value=toClock(new Date())};
+function parseClockValue(value){
+  const match=/^(\d{1,2}):(\d{2})$/.exec(value||"");
+  if(!match) return null;
+  const hour=Number(match[1]);
+  const minute=Number(match[2]);
+  if(hour<0 || hour>23 || minute<0 || minute>59) return null;
+  return hour*60+minute;
+}
+
+function clockFromMinutes(totalMinutes){
+  const normalised=((Math.round(totalMinutes)%1440)+1440)%1440;
+  const hour=Math.floor(normalised/60);
+  const minute=normalised%60;
+  return `${String(hour).padStart(2,"0")}:${String(minute).padStart(2,"0")}`;
+}
+
+function updateTimeTrigger(inputId,displayId){
+  const input=$(inputId);
+  const display=$(displayId);
+  if(!input || !display) return;
+  display.textContent=input.value || "--:--";
+}
+
+function renderCustomTimePicker(){
+  const value=clockFromMinutes(pickerMinutesSinceMidnight);
+  const [hour,minute]=value.split(":");
+  $("pickerHourDisplay").textContent=hour;
+  $("pickerMinuteDisplay").textContent=minute;
+  $("pickerHourValue").textContent=hour;
+  $("pickerMinuteValue").textContent=minute;
+}
+
+function openCustomTimePicker(inputId,buttonId,title){
+  activeTimeInput=$(inputId);
+  activeTimeButton=$(buttonId);
+
+  const currentValue=parseClockValue(activeTimeInput?.value);
+  const now=new Date();
+  pickerMinutesSinceMidnight=currentValue ?? (now.getHours()*60+now.getMinutes());
+
+  $("timePickerTitle").textContent=title;
+  renderCustomTimePicker();
+
+  pickerPreviousBodyOverflow=document.body.style.overflow;
+  document.body.style.overflow="hidden";
+  $("timePickerOverlay").classList.remove("hidden");
+
+  setTimeout(()=>$("timePickerConfirm").focus(),50);
+}
+
+function closeCustomTimePicker(returnFocus=true){
+  $("timePickerOverlay").classList.add("hidden");
+  document.body.style.overflow=pickerPreviousBodyOverflow;
+
+  if(returnFocus && activeTimeButton){
+    activeTimeButton.focus();
+  }
+}
+
+function adjustPickerMinutes(delta){
+  pickerMinutesSinceMidnight+=delta;
+  renderCustomTimePicker();
+}
+
+function setPickerFromNow(offsetMinutes=0){
+  const date=new Date(Date.now()+offsetMinutes*60000);
+  pickerMinutesSinceMidnight=date.getHours()*60+date.getMinutes();
+  renderCustomTimePicker();
+}
+
+function confirmCustomTime(){
+  if(!activeTimeInput) return;
+
+  activeTimeInput.value=clockFromMinutes(pickerMinutesSinceMidnight);
+  activeTimeInput.dispatchEvent(new Event("input",{bubbles:true}));
+  activeTimeInput.dispatchEvent(new Event("change",{bubbles:true}));
+
+  if(activeTimeInput.id==="readyTime"){
+    updateTimeTrigger("readyTime","readyTimeDisplay");
+  }else if(activeTimeInput.id==="startTimeOnly"){
+    updateTimeTrigger("startTimeOnly","startTimeDisplay");
+  }
+
+  closeCustomTimePicker();
+}
+
+document.documentElement.classList.add("custom-time-ready");
+
+updateTimeTrigger("readyTime","readyTimeDisplay");
+updateTimeTrigger("startTimeOnly","startTimeDisplay");
+
+$("readyTimeButton").onclick=()=>{
+  openCustomTimePicker("readyTime","readyTimeButton","Meal ready by");
+};
+
+$("startTimeButton").onclick=()=>{
+  openCustomTimePicker("startTimeOnly","startTimeButton","Start cooking at");
+};
+
+$("hourUp").onclick=()=>adjustPickerMinutes(60);
+$("hourDown").onclick=()=>adjustPickerMinutes(-60);
+$("minuteUp").onclick=()=>adjustPickerMinutes(5);
+$("minuteDown").onclick=()=>adjustPickerMinutes(-5);
+
+document.querySelectorAll("[data-time-offset]").forEach(button=>{
+  button.addEventListener("click",()=>{
+    setPickerFromNow(Number(button.dataset.timeOffset)||0);
+  });
+});
+
+$("timePickerConfirm").onclick=confirmCustomTime;
+$("timePickerCancel").onclick=()=>closeCustomTimePicker();
+$("timePickerClose").onclick=()=>closeCustomTimePicker();
+
+$("timePickerOverlay").addEventListener("click",event=>{
+  if(event.target===$("timePickerOverlay")){
+    closeCustomTimePicker();
+  }
+});
+
+document.addEventListener("keydown",event=>{
+  if(event.key==="Escape" && !$("timePickerOverlay").classList.contains("hidden")){
+    closeCustomTimePicker();
+  }
+});
+
+$("nowStart").onclick=()=>{
+  $("startTimeOnly").value=toClock(new Date());
+  updateTimeTrigger("startTimeOnly","startTimeDisplay");
+};
 
 function updateTempVisibility(){
   const m=$("itemMethod").value;

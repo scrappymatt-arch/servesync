@@ -1,13 +1,24 @@
-# ServeSync v3.8
+# ServeSync v4.0
 
-Changes in this build:
+## Custom time picker
 
-- The **Ready by** time field is now compact instead of spanning the full card.
-- The **Start at** time field uses the same compact design.
-- The clock icon now sits close to the displayed time.
-- Clicking anywhere inside either compact time field opens the native time picker where supported.
-- All v3.7 dark charcoal and copper styling is retained.
+This release replaces the browser's old white native time dropdown with a
+ServeSync-designed bottom-sheet picker.
 
-Current build: **v3.8**
+Features:
+
+- modern slide-up panel;
+- matching dark and light appearances;
+- large hour and minute controls;
+- five-minute minute adjustments;
+- quick choices for 30, 60 and 90 minutes from now;
+- clear Cancel and Set time buttons;
+- tapping outside the panel closes it without changing the time;
+- the original native time inputs remain as the stored values and fallback;
+- both Ready by and Start at use the same picker.
+
+All v3.9 functionality is retained.
+
+Current build: **v4.0**
 
 Upload these 7 files over the existing GitHub repository files and commit.
