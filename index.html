@@ -1,152 +1,3234 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-GB">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#080b10" />
-  <meta name="description" content="Live football fixtures and personal match-condition tracking." />
-  <title>MatchBuddy</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?v=2.3" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ServeSync — everything ready together</title>
+<style>
+:root{
+  --bg:#fffaf4; --card:#ffffff; --ink:#1f2933; --muted:#6b7280; --line:#e9dfd3;
+  --accent:#c95f2d; --accent2:#f4dfd2; --good:#1f7a4d; --warn:#a85b00; --bad:#a12d2d;
+  --shadow:0 12px 28px rgba(64,42,25,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:850px;margin:auto;padding:18px 14px 56px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand h1{font-size:1.7rem;margin:0}.brand p{margin:2px 0 0;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:18px;margin:14px 0}
+h2{font-size:1.18rem;margin:0 0 12px} h3{font-size:1rem;margin:14px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+label{display:block;font-size:.88rem;font-weight:650;margin-bottom:5px}
+input,select{width:100%;padding:12px 11px;border:1px solid #d7cec3;border-radius:12px;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:3px solid rgba(201,95,45,.14);border-color:var(--accent)}
+.btn{border:0;border-radius:13px;padding:12px 15px;font-weight:750}
+.primary{background:var(--accent);color:white}.secondary{background:var(--accent2);color:#703114}.ghost{background:#f8f4ef;color:#4b3f35;border:1px solid var(--line)}
+.big{padding:15px 18px;font-size:1.04rem}
+.mode{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#f6eee6;padding:5px;border-radius:15px}
+.mode button{background:transparent;border:0;border-radius:11px;padding:12px;font-weight:750;color:#6a584a}
+.mode button.active{background:#fff;color:var(--accent);box-shadow:0 4px 10px rgba(64,42,25,.08)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row > *{flex:1}
+.muted{color:var(--muted);font-size:.92rem}
+.small{font-size:.82rem}.right{text-align:right}
+.pill{display:inline-flex;align-items:center;gap:6px;background:#f4efe9;border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:.85rem}
+.item{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}.item strong{display:block}.item .meta{color:var(--muted);font-size:.88rem}
+.iconbtn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px}
+.timeline{position:relative;margin-top:8px}
+.event{display:grid;grid-template-columns:92px 18px 1fr;gap:10px;align-items:start;padding:10px 0}
+.event .time{font-weight:800}.dot{width:12px;height:12px;border-radius:50%;background:var(--accent);margin-top:5px;box-shadow:0 0 0 5px var(--accent2)}
+.event .what{border-bottom:1px solid var(--line);padding-bottom:10px}
+.event:last-child .what{border-bottom:0}.event.done{opacity:.48;text-decoration:line-through}
+.status{padding:12px 14px;border-radius:13px;margin:10px 0}
+.status.good{background:#eaf7f0;color:var(--good)}.status.warn{background:#fff2dd;color:var(--warn)}.status.bad{background:#fdecec;color:var(--bad)}
+.hidden{display:none!important}
+.kitchen-count{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:13px;padding:10px}
+.kitchen-count input{width:70px;padding:8px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}.actions .btn{flex:1;min-width:145px}
+.scan{border:2px dashed #d7c1b2;background:#fff9f4;color:#7a4d34}
+footer{text-align:center;color:var(--muted);font-size:.82rem;margin-top:28px}
+@media(max-width:650px){
+  .grid,.grid4{grid-template-columns:1fr 1fr}
+  .event{grid-template-columns:72px 14px 1fr;gap:8px}
+  .app{padding:12px 10px 45px}
+}
+@media(max-width:390px){.grid4{grid-template-columns:1fr 1fr}.brand p{font-size:.82rem}}
+
+.cooking-overlay{
+  position:fixed; inset:0; z-index:9999; background:var(--bg);
+  padding:max(14px,env(safe-area-inset-top)) 14px max(18px,env(safe-area-inset-bottom));
+  overflow:auto;
+}
+.cooking-shell{max-width:760px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+.cooking-topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.cooking-topbar h2{margin:0;font-size:1.25rem}
+.cooking-current{
+  background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);
+  padding:22px;margin:8px 0 14px;text-align:center
+}
+.cooking-current .when{font-size:.9rem;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
+.cooking-current .instruction{font-size:clamp(1.55rem,5vw,2.35rem);line-height:1.12;font-weight:850;margin:10px 0}
+.cooking-countdown{font-size:clamp(2.5rem,11vw,4.7rem);font-weight:900;letter-spacing:-.06em;margin:12px 0 0}
+.upcoming-box{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-top:10px}
+.upcoming-row{display:grid;grid-template-columns:78px 1fr;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.upcoming-row:first-child{border-top:0}
+.upcoming-row .u-time{font-weight:850}
+.overlay-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.overlay-actions .btn{flex:1;min-width:130px}
+.handsfree-note{text-align:center;color:var(--muted);font-size:.84rem;margin:12px 0 0}
+
+
+.scan-preview{
+  width:100%; max-height:320px; object-fit:contain; border-radius:14px;
+  border:1px solid var(--line); background:#f8f4ef; margin-top:10px
+}
+.scan-result{
+  border:1px solid var(--line); background:#fffaf4; border-radius:15px;
+  padding:14px; margin-top:12px
+}
+.progressbar{height:9px;background:#eee4db;border-radius:99px;overflow:hidden;margin-top:8px}
+.progressbar > div{height:100%;width:0%;background:var(--accent);transition:width .2s}
+textarea{
+  width:100%;min-height:110px;padding:11px;border:1px solid #d7cec3;border-radius:12px;
+  background:#fff;color:var(--ink);font:inherit;resize:vertical
+}
+
+
+.next-up-card{
+  background:var(--accent2);
+  border:1px solid #e7c6b4;
+  border-radius:18px;
+  padding:14px 16px;
+  margin:0 0 12px;
+}
+.next-up-card .next-label{
+  font-size:.78rem;
+  font-weight:850;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--accent);
+}
+.next-up-card .next-time{
+  font-weight:850;
+  margin-top:4px;
+}
+.next-up-card .next-text{
+  font-size:1.1rem;
+  font-weight:750;
+  margin-top:2px;
+}
+
+
+.crop-stage{
+  margin-top:12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+  background:#111;
+  touch-action:none;
+}
+#cropCanvas{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:520px;
+  object-fit:contain;
+  background:#111;
+  touch-action:none;
+}
+.crop-help{
+  background:#fff7ef;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px 12px;
+  margin-top:10px;
+  font-size:.9rem;
+}
+
+
+.barcode-stage{
+  border:1px solid var(--line); border-radius:16px; overflow:hidden;
+  background:#111; margin-top:12px; position:relative;
+}
+#barcodeVideo{display:block;width:100%;min-height:220px;max-height:420px;object-fit:cover;background:#111}
+.scan-line{position:absolute;left:12%;right:12%;top:50%;border-top:3px solid #ff7a32;box-shadow:0 0 10px rgba(255,122,50,.7)}
+.product-card{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}
+.product-card img{width:76px;height:76px;border-radius:10px;object-fit:contain;background:#f8f4ef}
+.product-card .pname{font-weight:850;font-size:1.05rem}
+.product-card .brand{color:var(--muted);font-size:.88rem}
+.known-badge{display:inline-block;border-radius:999px;padding:5px 9px;background:#eaf7f0;color:var(--good);font-size:.8rem;font-weight:750;margin-top:5px}
+.unknown-badge{display:inline-block;border-radius:999px;padding:5px 9px;background:#fff2dd;color:var(--warn);font-size:.8rem;font-weight:750;margin-top:5px}
+
+
+.settings-overlay{
+  position:fixed; inset:0; z-index:10020;
+  background:rgba(31,41,51,.45);
+  padding:max(14px,env(safe-area-inset-top)) 12px max(14px,env(safe-area-inset-bottom));
+  overflow:auto;
+}
+.settings-shell{max-width:760px;margin:0 auto;min-height:100%;display:flex;align-items:flex-start;justify-content:center}
+.settings-card{width:100%;margin:20px 0}
+
+
+.version-badge{
+  display:inline-block;
+  margin-left:7px;
+  padding:3px 7px;
+  border-radius:999px;
+  background:#f4dfd2;
+  color:#8a3d19;
+  font-size:.72rem;
+  font-weight:850;
+  vertical-align:middle;
+  letter-spacing:.02em;
+}
+
+
+.btn.danger{
+  background:#fff4f1;
+  border-color:#e2b9ab;
+  color:#9a351d;
+}
+.btn.danger:hover{background:#fce9e3}
+
+
+/* ServeSync v4.0 — Premium Charcoal & Copper */
+:root{
+  --bg:#080d10;--card:#141a1f;--ink:#f4f4f2;--muted:#a8afb5;
+  --line:rgba(255,255,255,.105);--accent:#d47739;
+  --accent-bright:#f1a162;--accent2:rgba(212,119,57,.16);
+  --good:#78c58a;--warn:#f0ba67;--bad:#ff8d78;
+  --shadow:0 18px 46px rgba(0,0,0,.36);
+}
+html{min-height:100%;background:#080d10;color-scheme:dark}
+body{
+  min-height:100vh;color:var(--ink);background-attachment:fixed;
+  background:
+    radial-gradient(circle at 15% -5%,rgba(212,119,57,.13),transparent 30rem),
+    radial-gradient(circle at 100% 18%,rgba(78,104,120,.11),transparent 34rem),
+    linear-gradient(145deg,#070b0e 0%,#0d1317 48%,#171d22 100%);
+}
+header{padding:8px 3px 2px}
+.brand h1{color:#f8f5f0;text-shadow:0 2px 18px rgba(0,0,0,.35)}
+.brand p{color:#aeb4b9}
+.card,.cooking-current,.upcoming-box,.product-card,.scan-result,.settings-card{
+  background:linear-gradient(145deg,rgba(28,35,41,.96),rgba(16,22,27,.97));
+  border-color:var(--line);
+  box-shadow:0 18px 46px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.035);
+}
+.card h2,.card h3,.cooking-current .instruction,.upcoming-box,.product-card{color:var(--ink)}
+input,select,textarea{
+  background:#0e1418;border-color:rgba(255,255,255,.14);color:var(--ink);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+}
+input::placeholder,textarea::placeholder{color:#717b82}
+input:focus,select:focus,textarea:focus{
+  outline:3px solid rgba(212,119,57,.22);border-color:var(--accent);
+}
+select option{color:var(--ink);background:#10161b}
+.primary{
+  color:#160d08;
+  background:linear-gradient(135deg,#ed9457 0%,#ce642b 52%,#ad481f 100%);
+  border:1px solid rgba(255,184,126,.28);
+  box-shadow:0 12px 28px rgba(180,76,29,.24),inset 0 1px 0 rgba(255,255,255,.25);
+}
+.primary:hover{filter:brightness(1.07)}
+.secondary{color:#f3a66d;background:rgba(212,119,57,.14);border:1px solid rgba(212,119,57,.28)}
+.ghost{color:#e4e7e8;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.12)}
+.ghost:hover{background:rgba(255,255,255,.065)}
+.mode{background:#0d1317;border:1px solid rgba(255,255,255,.055)}
+.mode button{color:#aeb4b9}
+.mode button.active{
+  color:#f3a26a;
+  background:linear-gradient(145deg,rgba(41,47,52,.98),rgba(22,28,33,.98));
+  box-shadow:0 7px 18px rgba(0,0,0,.27),inset 0 1px 0 rgba(255,255,255,.04);
+}
+.muted,.item .meta,.handsfree-note,footer{color:var(--muted)}
+.pill{color:#d8dcdf;background:rgba(255,255,255,.045);border-color:var(--line)}
+.item,.timeline .event .what,.upcoming-row{border-color:var(--line)}
+.iconbtn{color:#e5e7e8;background:#10161b;border-color:var(--line)}
+.dot{
+  background:var(--accent-bright);
+  box-shadow:0 0 0 5px rgba(212,119,57,.16),0 0 16px rgba(212,119,57,.28);
+}
+.status.good{color:#a9dfb5;background:rgba(75,157,94,.15);border:1px solid rgba(120,197,138,.18)}
+.status.warn{color:#f3cc8c;background:rgba(204,134,36,.14);border:1px solid rgba(240,186,103,.18)}
+.status.bad{color:#ffafa0;background:rgba(191,65,46,.15);border:1px solid rgba(255,141,120,.18)}
+.kitchen-count{color:#e7e9ea;background:rgba(255,255,255,.025);border-color:var(--line)}
+.scan{color:#f0a36e;background:rgba(212,119,57,.055);border-color:rgba(224,143,87,.44)}
+.cooking-overlay{
+  background:
+    radial-gradient(circle at 50% -15%,rgba(212,119,57,.16),transparent 36rem),
+    linear-gradient(145deg,#070b0e,#11181d 58%,#171d22);
+}
+.cooking-current{position:relative;overflow:hidden}
+.cooking-current::before{
+  content:"";position:absolute;left:12%;right:12%;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(241,161,98,.65),transparent);
+}
+.cooking-current .when{color:var(--accent-bright)}
+.cooking-countdown{color:#fffaf4;text-shadow:0 5px 28px rgba(0,0,0,.45)}
+.next-up-card{
+  color:#f5e6da;
+  background:linear-gradient(135deg,rgba(212,119,57,.19),rgba(212,119,57,.075));
+  border-color:rgba(226,143,87,.25);
+}
+.next-up-card .next-label{color:#f2a56e}
+.scan-preview{background:#090d10;border-color:var(--line)}
+.scan-result{background:linear-gradient(145deg,rgba(28,35,41,.97),rgba(15,21,26,.98))}
+.progressbar{background:#293037}
+.progressbar>div{background:linear-gradient(90deg,#c65a28,#f0a063)}
+.crop-help{color:#e3c9b7;background:rgba(212,119,57,.09);border-color:rgba(212,119,57,.22)}
+.barcode-stage{background:#030506;border-color:rgba(255,255,255,.13)}
+.scan-line{border-color:#f09a5c;box-shadow:0 0 14px rgba(240,154,92,.78)}
+.product-card img{background:#0a0f12}
+.known-badge{color:#a7dfb3;background:rgba(77,158,96,.16)}
+.unknown-badge{color:#f1c782;background:rgba(204,134,36,.16)}
+.settings-overlay{background:rgba(0,0,0,.72);backdrop-filter:blur(8px)}
+.version-badge{color:#f5a269;background:rgba(212,119,57,.15);border:1px solid rgba(212,119,57,.18)}
+.btn.danger{color:#ff9f8d;background:rgba(194,61,40,.08);border:1px solid rgba(255,141,120,.29)}
+.btn.danger:hover{background:rgba(194,61,40,.14)}
+footer{opacity:.88}
+#installCard .btn,#planBtn{background:linear-gradient(135deg,#ed9457 0%,#ce642b 52%,#ad481f 100%)}
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{
+  -webkit-text-fill-color:#f4f4f2;-webkit-box-shadow:0 0 0 1000px #0e1418 inset;
+  transition:background-color 9999s ease-out;
+}
+@media(max-width:650px){
+  body{
+    background:
+      radial-gradient(circle at 20% -4%,rgba(212,119,57,.12),transparent 23rem),
+      linear-gradient(155deg,#070b0e,#11181d 60%,#171d22);
+  }
+}
+
+
+/* ServeSync v4.0 — compact, fully tappable time controls */
+.time-entry-block{
+  width:min(100%,230px);
+}
+.time-entry-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.time-entry-row .compact-time-input{
+  flex:0 0 178px;
+}
+.time-entry-row #nowStart{
+  flex:0 0 auto;
+  padding:12px 14px;
+}
+.compact-time-input{
+  width:190px;
+  max-width:100%;
+  min-height:48px;
+  cursor:pointer;
+  font-weight:750;
+  font-variant-numeric:tabular-nums;
+}
+.compact-time-input::-webkit-calendar-picker-indicator{
+  cursor:pointer;
+  opacity:.9;
+}
+@media(max-width:390px){
+  .time-entry-block{width:100%}
+  .time-entry-row .compact-time-input{flex:1 1 auto;min-width:0}
+}
+
+
+/* ServeSync v4.0 — Light / Dark appearance switch */
+.appearance-setting{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:10px;
+}
+.appearance-choice{
+  font-weight:800;
+  color:var(--ink);
+}
+.theme-switch{
+  position:relative;
+  display:inline-block;
+  width:58px;
+  height:32px;
+  flex:0 0 auto;
+}
+.theme-switch input{
+  position:absolute;
+  opacity:0;
+  width:1px;
+  height:1px;
+}
+.theme-slider{
+  position:absolute;
+  inset:0;
+  cursor:pointer;
+  border-radius:999px;
+  background:#d9d3cc;
+  border:1px solid rgba(0,0,0,.12);
+  transition:.2s ease;
+}
+.theme-slider::before{
+  content:"";
+  position:absolute;
+  width:24px;
+  height:24px;
+  left:3px;
+  top:3px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.28);
+  transition:.2s ease;
+}
+.theme-switch input:checked + .theme-slider{
+  background:linear-gradient(135deg,#ed9457,#bd5225);
+  border-color:rgba(255,184,126,.28);
+}
+.theme-switch input:checked + .theme-slider::before{
+  transform:translateX(26px);
+}
+.theme-switch input:focus-visible + .theme-slider{
+  outline:3px solid rgba(212,119,57,.35);
+  outline-offset:3px;
+}
+
+/* Warm high-contrast light theme */
+html[data-theme="light"]{
+  color-scheme:light;
+  background:#f5eee6;
+}
+html[data-theme="light"] body{
+  --bg:#fff8f1;
+  --card:#ffffff;
+  --ink:#172033;
+  --muted:#607087;
+  --line:#dfd4ca;
+  --accent:#d0642e;
+  --accent-bright:#db7a44;
+  --accent2:#f4e5da;
+  --good:#2d7a4e;
+  --warn:#a46513;
+  --bad:#b94935;
+  --shadow:0 18px 46px rgba(83,56,39,.12);
+  color:#172033;
+  background:
+    radial-gradient(circle at 12% -5%,rgba(212,119,57,.12),transparent 30rem),
+    radial-gradient(circle at 100% 18%,rgba(121,150,166,.10),transparent 34rem),
+    linear-gradient(145deg,#fffaf5 0%,#f7efe7 52%,#eee6de 100%);
+  background-attachment:fixed;
+}
+html[data-theme="light"] .brand h1{color:#172033;text-shadow:none}
+html[data-theme="light"] .brand p{color:#607087}
+html[data-theme="light"] .card,
+html[data-theme="light"] .cooking-current,
+html[data-theme="light"] .upcoming-box,
+html[data-theme="light"] .product-card,
+html[data-theme="light"] .scan-result,
+html[data-theme="light"] .settings-card{
+  color:#172033;
+  background:linear-gradient(145deg,#ffffff,#fdfaf7);
+  border-color:#dfd4ca;
+  box-shadow:0 16px 38px rgba(83,56,39,.11),inset 0 1px 0 rgba(255,255,255,.8);
+}
+html[data-theme="light"] .card h2,
+html[data-theme="light"] .card h3,
+html[data-theme="light"] .cooking-current .instruction,
+html[data-theme="light"] .upcoming-box,
+html[data-theme="light"] .product-card,
+html[data-theme="light"] .appearance-choice{color:#172033}
+html[data-theme="light"] input,
+html[data-theme="light"] select,
+html[data-theme="light"] textarea{
+  color:#172033;
+  background:#fff;
+  border-color:#d7cbc0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75);
+}
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder{color:#8994a1}
+html[data-theme="light"] select option{color:#172033;background:#fff}
+html[data-theme="light"] .ghost{
+  color:#263443;
+  background:#faf7f3;
+  border-color:#d8cdc3;
+}
+html[data-theme="light"] .ghost:hover{background:#f3ece5}
+html[data-theme="light"] .secondary{
+  color:#9c451f;
+  background:#f7e6da;
+  border-color:#e6c6b3;
+}
+html[data-theme="light"] .mode{background:#eee5dd;border-color:#e4d8ce}
+html[data-theme="light"] .mode button{color:#604d41}
+html[data-theme="light"] .mode button.active{
+  color:#c45627;
+  background:#fff;
+  box-shadow:0 6px 16px rgba(83,56,39,.12);
+}
+html[data-theme="light"] .muted,
+html[data-theme="light"] .item .meta,
+html[data-theme="light"] .handsfree-note,
+html[data-theme="light"] footer{color:#607087}
+html[data-theme="light"] .pill{
+  color:#425160;
+  background:#f5f0eb;
+  border-color:#ddd2c8;
+}
+html[data-theme="light"] .item,
+html[data-theme="light"] .timeline .event .what,
+html[data-theme="light"] .upcoming-row{border-color:#e2d8cf}
+html[data-theme="light"] .iconbtn{
+  color:#263443;
+  background:#faf7f3;
+  border-color:#d8cdc3;
+}
+html[data-theme="light"] .kitchen-count{
+  color:#263443;
+  background:#fbf8f5;
+  border-color:#ddd2c8;
+}
+html[data-theme="light"] .scan{
+  color:#a84920;
+  background:#fffaf6;
+  border-color:#d5a283;
+}
+html[data-theme="light"] .scan-preview,
+html[data-theme="light"] .barcode-stage{
+  background:#eee7e0;
+  border-color:#d7cbc0;
+}
+html[data-theme="light"] .scan-result{
+  background:linear-gradient(145deg,#ffffff,#faf6f1);
+}
+html[data-theme="light"] .progressbar{background:#e5ddd6}
+html[data-theme="light"] .crop-help{
+  color:#7b492f;
+  background:#fff1e7;
+  border-color:#efcdb8;
+}
+html[data-theme="light"] .product-card img{background:#f5f1ed}
+html[data-theme="light"] .settings-overlay{
+  background:rgba(42,31,24,.42);
+  backdrop-filter:blur(7px);
+}
+html[data-theme="light"] .version-badge{
+  color:#9a431f;
+  background:#f4dfd2;
+  border-color:#e9c9b7;
+}
+html[data-theme="light"] .btn.danger{
+  color:#a53c26;
+  background:#fff4f1;
+  border-color:#e2b9ab;
+}
+html[data-theme="light"] .btn.danger:hover{background:#fce9e3}
+html[data-theme="light"] .cooking-overlay{
+  background:
+    radial-gradient(circle at 50% -15%,rgba(212,119,57,.14),transparent 34rem),
+    linear-gradient(145deg,#fffaf5,#f4ebe3 58%,#eae1d9);
+}
+html[data-theme="light"] .cooking-countdown{
+  color:#172033;
+  text-shadow:none;
+}
+html[data-theme="light"] .next-up-card{
+  color:#66361f;
+  background:linear-gradient(135deg,#f8e4d6,#fff5ee);
+  border-color:#e9c2aa;
+}
+html[data-theme="light"] .theme-slider{
+  background:#d9d3cc;
+  border-color:#c7bbb0;
+}
+
+
+/* ServeSync v4.0 — custom bottom-sheet time picker */
+.custom-time-trigger{
+  display:none;
+  width:190px;
+  max-width:100%;
+  min-height:48px;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:11px 14px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:13px;
+  color:var(--ink);
+  background:#0e1418;
+  cursor:pointer;
+  font:inherit;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+}
+.custom-time-trigger:hover{
+  border-color:rgba(212,119,57,.45);
+  background:#11191e;
+}
+.custom-time-trigger:focus-visible{
+  outline:3px solid rgba(212,119,57,.28);
+  outline-offset:2px;
+}
+.custom-time-value{
+  font-size:1.05rem;
+  letter-spacing:.03em;
+}
+.custom-time-icon{
+  display:grid;
+  place-items:center;
+  width:28px;
+  height:28px;
+  border-radius:9px;
+  color:#f1a162;
+  background:rgba(212,119,57,.11);
+  font-size:1.05rem;
+}
+html.custom-time-ready .native-time-value{
+  position:absolute !important;
+  width:1px !important;
+  height:1px !important;
+  overflow:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+html.custom-time-ready .custom-time-trigger{
+  display:flex;
+}
+.time-entry-row .custom-time-trigger{
+  flex:0 0 190px;
+}
+
+.time-picker-overlay{
+  position:fixed;
+  inset:0;
+  z-index:12000;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.68);
+  backdrop-filter:blur(10px);
+}
+.time-picker-overlay.hidden{
+  display:none;
+}
+.time-picker-sheet{
+  width:min(100%,520px);
+  max-height:min(92vh,720px);
+  overflow:auto;
+  padding:10px 20px 20px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:28px 28px 20px 20px;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 50% -15%,rgba(212,119,57,.15),transparent 24rem),
+    linear-gradient(145deg,#1c2329,#10161b);
+  box-shadow:
+    0 -18px 50px rgba(0,0,0,.46),
+    inset 0 1px 0 rgba(255,255,255,.045);
+  animation:timePickerRise .22s ease-out;
+}
+@keyframes timePickerRise{
+  from{transform:translateY(32px);opacity:.5}
+  to{transform:translateY(0);opacity:1}
+}
+.time-picker-handle{
+  width:46px;
+  height:5px;
+  margin:2px auto 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.22);
+}
+.time-picker-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+}
+.time-picker-header h2{
+  margin:3px 0 0;
+}
+.time-picker-close{
+  flex:0 0 auto;
+  min-width:44px;
+  min-height:44px;
+  padding:8px;
+  border-radius:14px;
+}
+.time-picker-display{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:22px 0 18px;
+  color:#fff7f1;
+  font-size:clamp(3.2rem,14vw,5.7rem);
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.025em;
+  font-variant-numeric:tabular-nums;
+  text-shadow:0 10px 30px rgba(0,0,0,.42);
+}
+.time-picker-colon{
+  padding:0 .1em .08em;
+  color:#e4874c;
+}
+.time-picker-controls{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:18px;
+  align-items:center;
+  padding:18px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:22px;
+  background:rgba(255,255,255,.025);
+}
+.time-picker-column{
+  display:grid;
+  justify-items:center;
+  gap:10px;
+}
+.time-picker-label{
+  color:var(--muted);
+  font-size:.78rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.time-step{
+  width:54px;
+  height:44px;
+  border-radius:14px;
+  border:1px solid rgba(212,119,57,.24);
+  color:#f1a162;
+  background:rgba(212,119,57,.10);
+  font:inherit;
+  font-size:1.55rem;
+  font-weight:700;
+  cursor:pointer;
+}
+.time-step:hover{
+  background:rgba(212,119,57,.18);
+}
+.time-step:active{
+  transform:scale(.96);
+}
+.time-step-value{
+  min-width:78px;
+  padding:13px 12px;
+  border-radius:16px;
+  color:#f8f4f0;
+  background:#0b1014;
+  border:1px solid rgba(255,255,255,.11);
+  text-align:center;
+  font-size:1.75rem;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+}
+.time-picker-divider{
+  width:1px;
+  height:118px;
+  background:linear-gradient(transparent,rgba(255,255,255,.14),transparent);
+}
+.time-picker-quick{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:14px;
+}
+.time-quick-chip{
+  flex:1 1 105px;
+  padding:10px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.11);
+  color:#dfe3e5;
+  background:rgba(255,255,255,.035);
+  font:inherit;
+  font-size:.86rem;
+  font-weight:750;
+  cursor:pointer;
+}
+.time-quick-chip:hover{
+  color:#f4b184;
+  border-color:rgba(212,119,57,.30);
+  background:rgba(212,119,57,.10);
+}
+.time-picker-actions{
+  display:grid;
+  grid-template-columns:1fr 1.35fr;
+  gap:10px;
+  margin-top:18px;
+}
+
+/* Light appearance */
+html[data-theme="light"] .custom-time-trigger{
+  color:#172033;
+  background:#fff;
+  border-color:#d7cbc0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75);
+}
+html[data-theme="light"] .custom-time-trigger:hover{
+  background:#fffaf6;
+  border-color:#d9a480;
+}
+html[data-theme="light"] .custom-time-icon{
+  color:#b95124;
+  background:#f8e7db;
+}
+html[data-theme="light"] .time-picker-overlay{
+  background:rgba(42,31,24,.48);
+}
+html[data-theme="light"] .time-picker-sheet{
+  color:#172033;
+  background:
+    radial-gradient(circle at 50% -15%,rgba(212,119,57,.13),transparent 24rem),
+    linear-gradient(145deg,#ffffff,#f5eee7);
+  border-color:#dacfc5;
+  box-shadow:0 -18px 50px rgba(65,42,28,.24),inset 0 1px 0 rgba(255,255,255,.8);
+}
+html[data-theme="light"] .time-picker-handle{
+  background:#b9aea4;
+}
+html[data-theme="light"] .time-picker-display{
+  color:#172033;
+  text-shadow:none;
+}
+html[data-theme="light"] .time-picker-controls{
+  background:#fbf7f3;
+  border-color:#e3d8ce;
+}
+html[data-theme="light"] .time-step{
+  color:#a84920;
+  background:#f8e7db;
+  border-color:#e8c7b2;
+}
+html[data-theme="light"] .time-step-value{
+  color:#172033;
+  background:#fff;
+  border-color:#d9cec4;
+}
+html[data-theme="light"] .time-picker-divider{
+  background:linear-gradient(transparent,#d7ccc2,transparent);
+}
+html[data-theme="light"] .time-quick-chip{
+  color:#425160;
+  background:#fff;
+  border-color:#ddd2c8;
+}
+html[data-theme="light"] .time-quick-chip:hover{
+  color:#9c451f;
+  background:#f8e7db;
+  border-color:#e1bda6;
+}
+
+@media(max-width:480px){
+  .time-picker-overlay{
+    padding:0;
+  }
+  .time-picker-sheet{
+    width:100%;
+    border-radius:26px 26px 0 0;
+    padding-bottom:max(20px,env(safe-area-inset-bottom));
+  }
+  .time-picker-controls{
+    gap:10px;
+    padding:14px 10px;
+  }
+  .time-picker-actions{
+    grid-template-columns:1fr 1.2fr;
+  }
+  .time-entry-row .custom-time-trigger{
+    flex:1 1 auto;
+    min-width:0;
+  }
+}
+
+</style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#080d10">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ServeSync">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+
+<script>
+(function(){
+  try{
+    const saved=localStorage.getItem("servesync-theme");
+    const systemDark=window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute(
+      "data-theme",
+      saved || (systemDark ? "dark" : "light")
+    );
+  }catch(e){
+    document.documentElement.setAttribute("data-theme","dark");
+  }
+})();
+</script>
+
 </head>
 <body>
-  <div class="app-shell">
-    <header class="topbar">
+<div class="app">
+<header>
+  <div class="brand">
+    <h1>🍽️ ServeSync <span class="version-badge">v4.0</span></h1>
+    <p>Everything ready together.</p>
+  </div>
+  <button class="btn ghost" id="kitchenBtn">⚙ Settings</button>
+</header>
+
+
+<div id="kitchenCard" class="settings-overlay hidden">
+  <div class="settings-shell">
+    <div class="card settings-card">
+      <div class="row" style="align-items:flex-start">
       <div>
-        <p class="eyebrow">FOOTBALL, WITHOUT THE CLUTTER</p>
-        <h1>MatchBuddy <span class="app-version">V2.3</span></h1>
+        <h2 style="margin-bottom:3px">Settings</h2>
+        <div class="muted">Your appearance and kitchen setup are saved on this device.</div>
       </div>
-      <button id="themeToggle" class="icon-button" aria-label="Toggle theme" title="Toggle theme">☼</button>
-    </header>
+      <button class="btn ghost" id="closeSettings" style="flex:0 0 auto">Close</button>
+    </div>
 
-    <main>
-      <section id="scoresView" class="view active" aria-labelledby="scoresTitle">
-        <div class="section-heading">
-          <div>
-            <p class="section-kicker">3 DAYS BACK · 10 DAYS AHEAD</p>
-            <h2 id="scoresTitle">Fixtures</h2>
-          </div>
-          <button id="jumpToday" class="secondary-button">Today</button>
-        </div>
+    <h3>Appearance</h3>
+    <div class="appearance-setting">
+      <span class="appearance-choice">Light</span>
+      <label class="theme-switch" aria-label="Switch between light and dark mode">
+        <input id="darkModeToggle" type="checkbox">
+        <span class="theme-slider"></span>
+      </label>
+      <span class="appearance-choice">Dark</span>
+    </div>
+    <p class="muted small">ServeSync remembers this choice on this device.</p>
 
-        <div id="dateStrip" class="date-strip" aria-label="Fixture dates"></div>
+    <h3>My Kitchen</h3>
+  <p class="muted">Set this once. You only need to return here when your equipment or temperature preference changes.</p>
+  <div class="grid4">
+    <div class="kitchen-count"><span>Ovens</span><input id="ovens" type="number" min="0" max="4" value="1"></div>
+    <div class="kitchen-count"><span>Hob rings</span><input id="hobs" type="number" min="0" max="8" value="4"></div>
+    <div class="kitchen-count"><span>Microwaves</span><input id="microwaves" type="number" min="0" max="4" value="1"></div>
+    <div class="kitchen-count"><span>Air fryers</span><input id="airfryers" type="number" min="0" max="4" value="1"></div>
+  </div>
+  <div style="margin-top:12px;max-width:260px">
+    <label>Temperature units</label>
+    <select id="tempUnit">
+      <option value="C">Celsius (°C)</option>
+      <option value="F">Fahrenheit (°F)</option>
+    </select>
+  </div>
+  <div class="actions" style="margin-top:12px">
+    <button class="btn primary" id="saveKitchen">Save settings</button>
+  </div>
+    </div>
+  </div>
+</div>
 
-        <div class="filter-row">
-          <label class="search-box">
-            <span>⌕</span>
-            <input id="fixtureSearch" type="search" placeholder="Search team or league" autocomplete="off" />
-          </label>
-          <button id="showSelectedOnly" class="filter-button" aria-pressed="false">Selected</button>
-        </div>
 
-        <div id="dataStatus" class="data-status" aria-live="polite"></div>
-        <div id="fixtureList" class="fixture-list"></div>
-      </section>
-
-      <section id="trackerView" class="view" aria-labelledby="trackerTitle">
-        <div class="section-heading tracker-heading">
-          <div>
-            <p class="section-kicker">YOUR MATCHES</p>
-            <h2 id="trackerTitle">My Matches</h2>
-          </div>
-          <button id="clearTracker" class="danger-button">Clear</button>
-        </div>
-
-        <div id="summaryCards" class="summary-grid"></div>
-
-        <div class="tracker-toolbar">
-          <div id="trackerFilters" class="segmented-control" role="group" aria-label="Tracker filter">
-            <button data-filter="all" class="active">All</button>
-            <button data-filter="live">Live</button>
-            <button data-filter="upcoming">Upcoming</button>
-            <button data-filter="finished">Finished</button>
-          </div>
-          <select id="trackerSort" aria-label="Sort matches">
-            <option value="date">Date</option>
-            <option value="urgency">Urgency</option>
-          </select>
-        </div>
-
-        <div id="trackerList" class="tracker-list"></div>
-      </section>
-
-      <section id="settingsView" class="view" aria-labelledby="settingsTitle">
-        <div class="section-heading">
-          <div>
-            <p class="section-kicker">APP OPTIONS</p>
-            <h2 id="settingsTitle">Settings</h2>
-          </div>
-        </div>
-
-        <div class="settings-card">
-          <div><h3>Theme</h3><p>Switch between dark and light mode.</p></div>
-          <button id="settingsThemeToggle" class="secondary-button">Toggle</button>
-        </div>
-
-        <div class="settings-card density-setting">
-          <div><h3>Fixture spacing</h3><p>Compact fits more matches on screen without reducing the main text size.</p></div>
-          <div id="densityControl" class="mini-segmented" role="group" aria-label="Fixture spacing">
-            <button type="button" data-density="compact">Compact</button>
-            <button type="button" data-density="comfortable">Comfortable</button>
-          </div>
-        </div>
-
-        <div class="settings-panel">
-          <div class="settings-panel-heading">
-            <div><h3>Favourite leagues</h3><p>Favourite competitions appear first on the Fixtures screen.</p></div>
-            <button id="clearFavouriteLeagues" class="text-button" type="button">Clear</button>
-          </div>
-          <div id="favouriteLeagueOptions" class="league-choice-grid"></div>
-          <p id="leagueHelp" class="settings-help">Leagues appear here after their fixtures have been loaded.</p>
-        </div>
-
-        <div class="settings-card">
-          <div><h3>Completed matches</h3><p>The list clears 24 hours after every tracked match is complete.</p></div>
-          <span class="status-pill">24 hours</span>
-        </div>
-
-        <div class="settings-card">
-          <div><h3>Data source</h3><p>Real fixtures and scores supplied through your protected MatchBuddy Worker.</p></div>
-          <span class="status-pill">Live</span>
-        </div>
-
-        <div class="settings-card">
-          <div><h3>Live refresh</h3><p>Checks approximately every two minutes only while the app is open and live matches matter.</p></div>
-          <span class="status-pill muted">2 min</span>
-        </div>
-      </section>
-    </main>
-
-    <nav class="bottom-nav" aria-label="Main navigation">
-      <button data-view="scoresView" class="active"><span>◫</span><small>Scores</small></button>
-      <button data-view="trackerView"><span>◎</span><small>My Matches</small><b id="trackerBadge" hidden>0</b></button>
-      <button data-view="settingsView"><span>⚙</span><small>Settings</small></button>
-    </nav>
+<section class="card">
+  <h2>When should the meal be ready?</h2>
+  <div class="mode">
+    <button id="modeReady" class="active">Ready by</button>
+    <button id="modeStart">Start at</button>
   </div>
 
-  <dialog id="conditionDialog">
-    <form method="dialog" class="dialog-card">
-      <div class="dialog-header">
-        <div><p class="section-kicker">TRACK THIS MATCH</p><h3 id="dialogMatchTitle">Choose condition</h3></div>
-        <button value="cancel" class="dialog-close" aria-label="Close">×</button>
+  <div id="readyControls" style="margin-top:14px">
+    <div class="time-entry-block">
+      <label for="readyTimeButton">Meal ready by</label>
+      <input id="readyTime" class="compact-time-input native-time-value" type="time" aria-label="Meal ready by">
+      <button class="custom-time-trigger" id="readyTimeButton" type="button" aria-haspopup="dialog">
+        <span class="custom-time-value" id="readyTimeDisplay">--:--</span>
+        <span class="custom-time-icon" aria-hidden="true">◷</span>
+      </button>
+    </div>
+    <p class="muted small">ServeSync will work backwards from this time and tell you when to start. If it is already too late, it will show the earliest realistic serving time.</p>
+  </div>
+
+  <div id="startControls" class="hidden" style="margin-top:14px">
+    <div class="time-entry-block">
+      <label for="startTimeButton">Start cooking at</label>
+      <div class="time-entry-row">
+        <input id="startTimeOnly" class="compact-time-input native-time-value" type="time" aria-label="Start cooking at">
+        <button class="custom-time-trigger" id="startTimeButton" type="button" aria-haspopup="dialog">
+          <span class="custom-time-value" id="startTimeDisplay">--:--</span>
+          <span class="custom-time-icon" aria-hidden="true">◷</span>
+        </button>
+        <button class="btn secondary" id="nowStart">Now</button>
       </div>
-      <div id="conditionOptions" class="condition-groups"></div>
-      <menu><button value="cancel" class="secondary-button">Cancel</button></menu>
-    </form>
-  </dialog>
+      <p class="muted small">ServeSync will calculate the earliest time your meal can be ready.</p>
+    </div>
+  </div>
+</section>
 
-  <dialog id="confirmDialog">
-    <form method="dialog" class="dialog-card compact">
-      <h3>Clear your match list?</h3>
-      <p>This removes every selected fixture. It cannot be undone.</p>
-      <menu>
-        <button value="cancel" class="secondary-button">Cancel</button>
-        <button value="confirm" class="danger-button">Clear list</button>
-      </menu>
-    </form>
-  </dialog>
+<section class="card">
+  <div class="row" style="align-items:flex-start">
+    <div>
+      <h2 style="margin-bottom:3px">What are you cooking?</h2>
+      <div class="muted">Scan the barcode first. Only scan the cooking instructions if ServeSync does not already know them.</div>
+    </div>
+    <button class="btn ghost" id="sampleBtn" style="flex:0 0 auto">Load sample meal</button>
+  </div>
 
-  <script src="app.js?v=2.3" defer></script>
+  <div class="actions" style="margin-top:14px">
+    <button class="btn primary big" id="barcodeBtn">▦ Scan barcode</button>
+    <button class="btn ghost big" id="addItemBtn">＋ Add manually</button>
+    <button class="btn scan big" id="scanBtn">📷 Scan instructions</button>
+  </div>
+
+  <div id="itemsList" style="margin-top:12px"></div>
+</section>
+
+<section class="card hidden" id="itemEditor">
+  <h2 id="editorTitle">Add food</h2>
+  <div class="grid">
+    <div>
+      <label>Food / task name</label>
+      <input id="itemName" placeholder="e.g. Roast chicken">
+    </div>
+    <div>
+      <label>Cooking method</label>
+      <select id="itemMethod">
+        <option value="oven">Oven</option>
+        <option value="hob">Hob</option>
+        <option value="airfryer">Air fryer</option>
+        <option value="microwave">Microwave</option>
+      </select>
+    </div>
+    <div>
+      <label>Cook time (minutes)</label>
+      <input id="itemCook" type="number" min="0" max="600" value="20">
+    </div>
+    <div id="tempWrap">
+      <label id="tempLabel">Temperature °C</label>
+      <input id="itemTemp" type="number" min="50" max="600" value="200">
+    </div>
+    <div>
+      <label>Rest time (optional)</label>
+      <input id="itemRest" type="number" min="0" max="180" value="0">
+    </div>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <label style="font-weight:500"><input id="itemPreheat" type="checkbox" checked style="width:auto;margin-right:7px"> Needs preheat (10 min)</label>
+    <label style="font-weight:500"><input id="itemFavourite" type="checkbox" style="width:auto;margin-right:7px"> Save as favourite</label>
+  </div>
+  <div class="actions" style="margin-top:12px">
+    <button class="btn primary" id="saveItem">Add to meal</button>
+    <button class="btn ghost" id="cancelItem">Cancel</button>
+  </div>
+</section>
+
+<section class="card hidden" id="barcodeCard">
+  <div class="row" style="align-items:flex-start">
+    <div>
+      <h2 style="margin-bottom:3px">▦ Scan barcode</h2>
+      <div class="muted">Point the camera at the supermarket barcode. ServeSync will identify the product, then check whether its cooking instructions are already known.</div>
+    </div>
+    <button class="btn ghost" id="closeBarcode" style="flex:0 0 auto">Close</button>
+  </div>
+
+  <div class="barcode-stage hidden" id="barcodeStage">
+    <video id="barcodeVideo" playsinline muted></video>
+    <div class="scan-line"></div>
+  </div>
+
+  <div class="actions" style="margin-top:12px">
+    <button class="btn primary" id="startBarcodeCamera">Open camera scanner</button>
+    <button class="btn ghost hidden" id="stopBarcodeCamera">Stop camera</button>
+  </div>
+
+  <div style="margin-top:14px">
+    <label>Or enter the barcode number</label>
+    <div class="row">
+      <input id="barcodeInput" inputmode="numeric" autocomplete="off" placeholder="e.g. 5012345678900">
+      <button class="btn secondary" id="lookupBarcode" style="flex:0 0 auto">Look up</button>
+    </div>
+  </div>
+
+  <button class="btn ghost small" id="demoBarcode" style="margin-top:10px">Try sample barcode</button>
+
+  <div id="barcodeStatus"></div>
+
+  <div id="barcodeProduct" class="hidden">
+    <div class="product-card">
+      <img id="barcodeProductImage" class="hidden" alt="">
+      <div>
+        <div id="barcodeProductName" class="pname">Product</div>
+        <div id="barcodeProductBrand" class="brand"></div>
+        <div id="barcodeKnownBadge"></div>
+      </div>
+    </div>
+
+    <div id="barcodeCookFields" class="scan-result">
+      <h3 style="margin-top:0">Cooking details</h3>
+      <div class="grid">
+        <div>
+          <label>Cooking method</label>
+          <select id="barcodeMethod">
+            <option value="">Not known yet</option>
+            <option value="oven">Oven</option>
+            <option value="hob">Hob</option>
+            <option value="airfryer">Air fryer</option>
+            <option value="microwave">Microwave</option>
+          </select>
+        </div>
+        <div>
+          <label>Cook time (minutes)</label>
+          <input id="barcodeCook" type="number" min="1" max="600" placeholder="Not known yet">
+        </div>
+        <div id="barcodeTempWrap">
+          <label id="barcodeTempLabel">Temperature °C</label>
+          <input id="barcodeTemp" type="number" min="50" max="600" placeholder="Not known yet">
+        </div>
+        <div>
+          <label>Rest time (optional)</label>
+          <input id="barcodeRest" type="number" min="0" max="180" value="0">
+        </div>
+      </div>
+
+      <div id="barcodeHelp" class="status warn" style="margin-top:12px">
+        Cooking instructions are not known for this barcode yet.
+      </div>
+
+      <div class="actions" style="margin-top:12px">
+        <button class="btn scan" id="barcodeScanInstructions">📷 Scan cooking instructions</button>
+        <button class="btn primary" id="barcodeAddMeal">✓ Add to meal</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="muted small" style="margin-top:14px">
+    The barcode identifies the product. Product identity is looked up using Open Food Facts. Cooking details are stored separately in ServeSync after you confirm them.
+  </p>
+</section>
+
+<section class="card hidden" id="scanCard">
+  <div class="row" style="align-items:flex-start">
+    <div>
+      <h2 style="margin-bottom:3px">📷 Scan packet</h2>
+      <div class="muted">Photograph the packet, then highlight just the cooking instructions. ServeSync will read that area and ask you to confirm the result.</div>
+    </div>
+    <button class="btn ghost" id="closeScan" style="flex:0 0 auto">Close</button>
+  </div>
+
+  <div class="status good" style="margin-top:14px">
+    <strong>Safety rule:</strong> ServeSync only uses text it can read from the packet. If a time or method is unclear, it will ask you to fill it in.
+  </div>
+
+  <input id="packetPhoto" type="file" accept="image/*" capture="environment" style="margin-top:12px">
+
+  <div id="cropStage" class="hidden">
+    <div class="crop-help">
+      <strong>Highlight the cooking instructions.</strong><br>
+      Drag a box around the cooking-instructions panel. ServeSync will OCR only that area.
+    </div>
+    <div class="crop-stage">
+      <canvas id="cropCanvas"></canvas>
+    </div>
+    <div class="actions" style="margin-top:10px">
+      <button class="btn ghost" id="resetCrop">Use whole photo</button>
+      <button class="btn secondary" id="tightCropHint">How to crop</button>
+    </div>
+  </div>
+
+  <div class="actions" style="margin-top:12px">
+    <button class="btn primary" id="readPacket" disabled>Read selected instructions</button>
+  </div>
+
+  <div id="scanProgressWrap" class="hidden" style="margin-top:12px">
+    <div id="scanProgressText" class="muted">Preparing scanner…</div>
+    <div class="progressbar"><div id="scanProgressBar"></div></div>
+  </div>
+
+  <h3>Text from packet</h3>
+  <textarea id="scanRawText" placeholder="OCR text will appear here. You can also paste or type cooking instructions here manually."></textarea>
+  <div class="actions" style="margin-top:10px">
+    <button class="btn secondary" id="analyseScanText">Analyse this text</button>
+  </div>
+
+  <div id="scanResult" class="scan-result hidden">
+    <h3 style="margin-top:0">Check what ServeSync found</h3>
+    <div id="scanWarnings"></div>
+
+    <div class="grid">
+      <div>
+        <label>Item name</label>
+        <input id="scanName" placeholder="e.g. Chicken Kievs">
+      </div>
+      <div>
+        <label>Cooking method</label>
+        <select id="scanMethod">
+          <option value="">Not detected</option>
+          <option value="oven">Oven</option>
+          <option value="hob">Hob</option>
+          <option value="airfryer">Air fryer</option>
+          <option value="microwave">Microwave</option>
+        </select>
+      </div>
+      <div>
+        <label>Cook time (minutes)</label>
+        <input id="scanCook" type="number" min="1" max="600" placeholder="Not detected">
+      </div>
+      <div id="scanTempWrap">
+        <label id="scanTempLabel">Temperature °C</label>
+        <input id="scanTemp" type="number" min="50" max="600" placeholder="Not detected">
+      </div>
+    </div>
+
+    <label style="display:flex;align-items:center;gap:9px;margin-top:12px;font-weight:500">
+      <input id="scanPreheat" type="checkbox" checked style="width:auto">
+      Include a 10-minute preheat
+    </label>
+
+    <div id="scanSourceNote" class="muted small" style="margin-top:10px"></div>
+
+    <div class="actions" style="margin-top:12px">
+      <button class="btn primary big" id="addScannedItem">✓ Add to meal</button>
+      <button class="btn ghost" id="editScannedItem">Open full editor</button>
+    </div>
+  </div>
+
+  <p class="muted small" style="margin-top:14px">
+    Prototype scanner: OCR runs in your browser using Tesseract.js. ServeSync crops and enhances the selected instruction area before reading it. The image itself is not sent to an AI service.
+  </p>
+</section>
+
+<section class="card hidden" id="favouritesCard">
+  <h2>⭐ Favourites</h2>
+  <div id="favouritesList"></div>
+</section>
+
+<section class="card">
+  <button class="btn primary big" id="planBtn" style="width:100%">Plan my meal</button>
+  <div id="planStatus"></div>
+</section>
+
+<section class="card hidden" id="scheduleCard">
+  <div class="row" style="align-items:flex-start">
+    <div>
+      <h2 style="margin-bottom:3px">Your cooking plan</h2>
+      <div id="serveSummary" class="muted"></div>
+    </div>
+    <button class="btn ghost" id="resetChecks" style="flex:0 0 auto">Reset ticks</button>
+  </div>
+  <div id="timeline" class="timeline"></div>
+  <div class="actions" style="margin-top:14px">
+    <button class="btn secondary big" id="cookingModeBtn">Start cooking mode</button>
+  </div>
+</section>
+
+<section class="card hidden" id="cookingCard">
+  <h2>Cooking mode</h2>
+  <p class="muted">ServeSync can stay on one screen while you cook. Choose whether you want audible/spoken alerts.</p>
+
+  <label style="display:flex;align-items:center;gap:10px;background:#f8f4ef;border:1px solid var(--line);border-radius:13px;padding:12px;margin:12px 0;font-weight:650">
+    <input id="keepScreenAwake" type="checkbox" checked style="width:auto;transform:scale(1.2)">
+    Keep screen awake while cooking
+  </label>
+
+  <div class="actions">
+    <button class="btn primary big" id="startWithAlerts">🔔 Start with alerts</button>
+    <button class="btn ghost big" id="startWithoutAlerts">Start without alerts</button>
+  </div>
+</section>
+
+
+<div id="timePickerOverlay" class="time-picker-overlay hidden" role="presentation">
+  <div class="time-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="timePickerTitle">
+    <div class="time-picker-handle" aria-hidden="true"></div>
+
+    <div class="time-picker-header">
+      <div>
+        <div class="muted small">Select a time</div>
+        <h2 id="timePickerTitle">Meal ready by</h2>
+      </div>
+      <button class="btn ghost time-picker-close" id="timePickerClose" type="button" aria-label="Close time picker">✕</button>
+    </div>
+
+    <div class="time-picker-display" aria-live="polite">
+      <span id="pickerHourDisplay">18</span>
+      <span class="time-picker-colon">:</span>
+      <span id="pickerMinuteDisplay">30</span>
+    </div>
+
+    <div class="time-picker-controls">
+      <div class="time-picker-column">
+        <div class="time-picker-label">Hour</div>
+        <button class="time-step" id="hourUp" type="button" aria-label="Increase hour">＋</button>
+        <div class="time-step-value" id="pickerHourValue">18</div>
+        <button class="time-step" id="hourDown" type="button" aria-label="Decrease hour">−</button>
+      </div>
+
+      <div class="time-picker-divider" aria-hidden="true"></div>
+
+      <div class="time-picker-column">
+        <div class="time-picker-label">Minute</div>
+        <button class="time-step" id="minuteUp" type="button" aria-label="Increase minutes">＋</button>
+        <div class="time-step-value" id="pickerMinuteValue">30</div>
+        <button class="time-step" id="minuteDown" type="button" aria-label="Decrease minutes">−</button>
+      </div>
+    </div>
+
+    <div class="time-picker-quick">
+      <button class="time-quick-chip" type="button" data-time-offset="30">In 30 min</button>
+      <button class="time-quick-chip" type="button" data-time-offset="60">In 1 hour</button>
+      <button class="time-quick-chip" type="button" data-time-offset="90">In 90 min</button>
+    </div>
+
+    <div class="time-picker-actions">
+      <button class="btn ghost big" id="timePickerCancel" type="button">Cancel</button>
+      <button class="btn primary big" id="timePickerConfirm" type="button">Set time</button>
+    </div>
+  </div>
+</div>
+
+<div id="cookingOverlay" class="cooking-overlay hidden" aria-live="polite">
+  <div class="cooking-shell">
+    <div class="cooking-topbar">
+      <div>
+        <h2>🍽️ ServeSync</h2>
+        <div class="muted small">Hands-free cooking mode</div>
+      </div>
+      <button class="btn ghost" id="closeHandsFree">Minimise</button>
+    </div>
+
+    <div class="cooking-current">
+      <div class="when" id="overlayWhen">NEXT</div>
+      <div class="instruction" id="overlayInstruction">Waiting for cooking plan…</div>
+      <div class="cooking-countdown" id="overlayCountdown">--:--</div>
+      <div class="muted" id="overlayCountdownLabel">until next action</div>
+    </div>
+
+    <div id="nextUpCard" class="next-up-card">
+      <div class="next-label">Next up</div>
+      <div id="nextUpTime" class="next-time">—</div>
+      <div id="nextUpText" class="next-text">No later step yet.</div>
+    </div>
+
+    <div class="upcoming-box">
+      <strong>After that</strong>
+      <div id="upcomingList"></div>
+    </div>
+
+    <div class="overlay-actions">
+      <button class="btn primary big" id="overlayDone">✓ Done</button>
+      <button class="btn ghost big" id="overlayLate">I'm late</button>
+      <button class="btn ghost big" id="overlayAlerts">🔔 Alerts are Off</button>
+    </div>
+
+    <button class="btn danger big" id="cancelCooking" style="width:100%;margin-top:12px">Cancel cooking</button>
+
+    <div id="overlayStatus"></div>
+    <div class="handsfree-note">With alerts on, you do not need to tap Done for later alerts to sound. ServeSync follows the clock. Screen-awake mode stays active for the cooking session where supported.</div>
+  </div>
+</div>
+
+
+<section class="card" id="installHint">
+  <h2>Install ServeSync</h2>
+  <p class="muted">Once this version is hosted securely, your Samsung can install ServeSync to the home screen like an app.</p>
+  <button class="btn ghost hidden" id="installPwaBtn">Install ServeSync</button>
+</section>
+
+<footer>ServeSync v4.0 · No account · No tracking</footer>
+</div>
+
+<script src="https://unpkg.com/@zxing/browser@0.2.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+
+let deferredInstallPrompt=null;
+
+window.addEventListener("beforeinstallprompt",(event)=>{
+  event.preventDefault();
+  deferredInstallPrompt=event;
+  const btn=document.getElementById("installPwaBtn");
+  if(btn) btn.classList.remove("hidden");
+});
+
+window.addEventListener("appinstalled",()=>{
+  deferredInstallPrompt=null;
+  const btn=document.getElementById("installPwaBtn");
+  if(btn) btn.classList.add("hidden");
+});
+
+document.addEventListener("click",async(ev)=>{
+  if(ev.target && ev.target.id==="installPwaBtn" && deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    try{ await deferredInstallPrompt.userChoice; }catch(e){}
+    deferredInstallPrompt=null;
+    ev.target.classList.add("hidden");
+  }
+});
+
+let items = [];
+let schedule = [];
+let mode = "ready";
+let editingIndex = null;
+
+const methodLabel = {oven:"Oven",hob:"Hob",airfryer:"Air fryer",microwave:"Microwave",none:"Prep only"};
+
+function currentTempUnit(){ return $("tempUnit")?.value || "C"; }
+function cToF(c){ return Math.round((Number(c) * 9/5) + 32); }
+function fToC(f){ return Math.round((Number(f) - 32) * 5/9); }
+function displayTemp(c){
+  if(c===null || c===undefined || c==="") return "";
+  return currentTempUnit()==="F" ? cToF(c) : Math.round(Number(c));
+}
+function inputTempToC(v){
+  const n=Number(v);
+  if(!Number.isFinite(n)) return null;
+  return currentTempUnit()==="F" ? fToC(n) : Math.round(n);
+}
+function fmtTemp(c){
+  if(c===null || c===undefined || c==="") return "";
+  return currentTempUnit()==="F" ? `${cToF(c)}°F` : `${Math.round(Number(c))}°C`;
+}
+function syncTempUI(){
+  const unit=currentTempUnit();
+  $("tempLabel").textContent=`Temperature °${unit}`;
+  $("itemTemp").min = unit==="F" ? 120 : 50;
+  $("itemTemp").max = unit==="F" ? 600 : 300;
+  renderItems();
+  renderFavourites();
+}
+
+
+function mins(n){ return Math.max(0, Number(n)||0); }
+function pad(n){ return String(n).padStart(2,"0"); }
+function toClock(d){ return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function cloneDate(d){ return new Date(d.getTime()); }
+function addMin(d,m){ return new Date(d.getTime()+m*60000); }
+function diffMin(a,b){ return Math.round((a-b)/60000); }
+function parseTodayTime(value, base=new Date()){
+  const [h,m]=(value||"00:00").split(":").map(Number);
+  const d=new Date(base); d.setSeconds(0,0); d.setHours(h,m,0,0); return d;
+}
+function nextOccurrence(value, base=new Date()){
+  let d=parseTodayTime(value, base);
+  if(d < addMin(base,-1)) d.setDate(d.getDate()+1);
+  return d;
+}
+function setDefaultTimes(){
+  const now=new Date(); now.setSeconds(0,0);
+  $("startTimeOnly").value=toClock(now);
+  $("readyTime").value=toClock(addMin(now,120));
+}
+setDefaultTimes();
+
+
+(function migrateKitchenKey(){
+  try{
+    if(!localStorage.getItem("servesync-kitchen") && localStorage.getItem("servesync-kitchen")){
+      localStorage.setItem("servesync-kitchen", localStorage.getItem("servesync-kitchen"));
+    }
+  }catch(e){}
+})();
+
+
+const SERVESYNC_THEME_KEY="servesync-theme";
+
+function applyServeSyncTheme(theme,persist=false){
+  const resolved=theme==="light" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme",resolved);
+
+  const toggle=$("darkModeToggle");
+  if(toggle) toggle.checked=resolved==="dark";
+
+  if(persist){
+    try{ localStorage.setItem(SERVESYNC_THEME_KEY,resolved); }catch(e){}
+  }
+}
+
+function initialiseThemeSetting(){
+  let saved=null;
+  try{ saved=localStorage.getItem(SERVESYNC_THEME_KEY); }catch(e){}
+  const systemDark=window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyServeSyncTheme(saved || (systemDark ? "dark" : "light"),false);
+}
+
+initialiseThemeSetting();
+
+$("darkModeToggle").onchange=()=>{
+  applyServeSyncTheme(
+    $("darkModeToggle").checked ? "dark" : "light",
+    true
+  );
+};
+
+
+function saveKitchen(){
+  const k = {
+    ovens: mins($("ovens").value), hobs: mins($("hobs").value),
+    microwaves: mins($("microwaves").value), airfryers: mins($("airfryers").value),
+    tempUnit: currentTempUnit()
+  };
+  localStorage.setItem("servesync-kitchen", JSON.stringify(k));
+  closeSettings();
+}
+function loadKitchen(){
+  const raw=localStorage.getItem("servesync-kitchen");
+  if(raw){
+    const k=JSON.parse(raw);
+    for(const key of ["ovens","hobs","microwaves","airfryers"]) if(k[key]!==undefined) $(key).value=k[key];
+    if(k.tempUnit) $("tempUnit").value=k.tempUnit;
+    $("kitchenCard").classList.add("hidden");
+  }
+}
+loadKitchen();
+syncTempUI();
+
+// First run only: kitchen configuration is required once, then it stays in Settings.
+(function servesyncFirstKitchenCheck(){
+  const hasKitchen = !!localStorage.getItem("servesync-kitchen");
+  if(!hasKitchen){
+    setTimeout(openSettings, 100);
+  }
+})();
+$("tempUnit").onchange=syncTempUI;
+
+function openSettings(){
+  $("kitchenCard").classList.remove("hidden");
+  document.body.style.overflow="hidden";
+}
+function closeSettings(){
+  $("kitchenCard").classList.add("hidden");
+  document.body.style.overflow="";
+}
+$("kitchenBtn").onclick=openSettings;
+$("closeSettings").onclick=closeSettings;
+$("saveKitchen").onclick=saveKitchen;
+
+function setMode(m){
+  mode=m;
+  $("modeReady").classList.toggle("active",m==="ready");
+  $("modeStart").classList.toggle("active",m==="start");
+  $("readyControls").classList.toggle("hidden",m!=="ready");
+  $("startControls").classList.toggle("hidden",m!=="start");
+}
+$("modeReady").onclick=()=>setMode("ready");
+$("modeStart").onclick=()=>setMode("start");
+
+let activeTimeInput=null;
+let activeTimeButton=null;
+let pickerMinutesSinceMidnight=0;
+let pickerPreviousBodyOverflow="";
+
+function parseClockValue(value){
+  const match=/^(\d{1,2}):(\d{2})$/.exec(value||"");
+  if(!match) return null;
+  const hour=Number(match[1]);
+  const minute=Number(match[2]);
+  if(hour<0 || hour>23 || minute<0 || minute>59) return null;
+  return hour*60+minute;
+}
+
+function clockFromMinutes(totalMinutes){
+  const normalised=((Math.round(totalMinutes)%1440)+1440)%1440;
+  const hour=Math.floor(normalised/60);
+  const minute=normalised%60;
+  return `${String(hour).padStart(2,"0")}:${String(minute).padStart(2,"0")}`;
+}
+
+function updateTimeTrigger(inputId,displayId){
+  const input=$(inputId);
+  const display=$(displayId);
+  if(!input || !display) return;
+  display.textContent=input.value || "--:--";
+}
+
+function renderCustomTimePicker(){
+  const value=clockFromMinutes(pickerMinutesSinceMidnight);
+  const [hour,minute]=value.split(":");
+  $("pickerHourDisplay").textContent=hour;
+  $("pickerMinuteDisplay").textContent=minute;
+  $("pickerHourValue").textContent=hour;
+  $("pickerMinuteValue").textContent=minute;
+}
+
+function openCustomTimePicker(inputId,buttonId,title){
+  activeTimeInput=$(inputId);
+  activeTimeButton=$(buttonId);
+
+  const currentValue=parseClockValue(activeTimeInput?.value);
+  const now=new Date();
+  pickerMinutesSinceMidnight=currentValue ?? (now.getHours()*60+now.getMinutes());
+
+  $("timePickerTitle").textContent=title;
+  renderCustomTimePicker();
+
+  pickerPreviousBodyOverflow=document.body.style.overflow;
+  document.body.style.overflow="hidden";
+  $("timePickerOverlay").classList.remove("hidden");
+
+  setTimeout(()=>$("timePickerConfirm").focus(),50);
+}
+
+function closeCustomTimePicker(returnFocus=true){
+  $("timePickerOverlay").classList.add("hidden");
+  document.body.style.overflow=pickerPreviousBodyOverflow;
+
+  if(returnFocus && activeTimeButton){
+    activeTimeButton.focus();
+  }
+}
+
+function adjustPickerMinutes(delta){
+  pickerMinutesSinceMidnight+=delta;
+  renderCustomTimePicker();
+}
+
+function setPickerFromNow(offsetMinutes=0){
+  const date=new Date(Date.now()+offsetMinutes*60000);
+  pickerMinutesSinceMidnight=date.getHours()*60+date.getMinutes();
+  renderCustomTimePicker();
+}
+
+function confirmCustomTime(){
+  if(!activeTimeInput) return;
+
+  activeTimeInput.value=clockFromMinutes(pickerMinutesSinceMidnight);
+  activeTimeInput.dispatchEvent(new Event("input",{bubbles:true}));
+  activeTimeInput.dispatchEvent(new Event("change",{bubbles:true}));
+
+  if(activeTimeInput.id==="readyTime"){
+    updateTimeTrigger("readyTime","readyTimeDisplay");
+  }else if(activeTimeInput.id==="startTimeOnly"){
+    updateTimeTrigger("startTimeOnly","startTimeDisplay");
+  }
+
+  closeCustomTimePicker();
+}
+
+document.documentElement.classList.add("custom-time-ready");
+
+updateTimeTrigger("readyTime","readyTimeDisplay");
+updateTimeTrigger("startTimeOnly","startTimeDisplay");
+
+$("readyTimeButton").onclick=()=>{
+  openCustomTimePicker("readyTime","readyTimeButton","Meal ready by");
+};
+
+$("startTimeButton").onclick=()=>{
+  openCustomTimePicker("startTimeOnly","startTimeButton","Start cooking at");
+};
+
+$("hourUp").onclick=()=>adjustPickerMinutes(60);
+$("hourDown").onclick=()=>adjustPickerMinutes(-60);
+$("minuteUp").onclick=()=>adjustPickerMinutes(5);
+$("minuteDown").onclick=()=>adjustPickerMinutes(-5);
+
+document.querySelectorAll("[data-time-offset]").forEach(button=>{
+  button.addEventListener("click",()=>{
+    setPickerFromNow(Number(button.dataset.timeOffset)||0);
+  });
+});
+
+$("timePickerConfirm").onclick=confirmCustomTime;
+$("timePickerCancel").onclick=()=>closeCustomTimePicker();
+$("timePickerClose").onclick=()=>closeCustomTimePicker();
+
+$("timePickerOverlay").addEventListener("click",event=>{
+  if(event.target===$("timePickerOverlay")){
+    closeCustomTimePicker();
+  }
+});
+
+document.addEventListener("keydown",event=>{
+  if(event.key==="Escape" && !$("timePickerOverlay").classList.contains("hidden")){
+    closeCustomTimePicker();
+  }
+});
+
+$("nowStart").onclick=()=>{
+  $("startTimeOnly").value=toClock(new Date());
+  updateTimeTrigger("startTimeOnly","startTimeDisplay");
+};
+
+function updateTempVisibility(){
+  const m=$("itemMethod").value;
+  const usesTemp=["oven","airfryer"].includes(m);
+  $("tempWrap").classList.toggle("hidden",!usesTemp);
+  $("itemPreheat").parentElement.classList.toggle("hidden",!usesTemp);
+}
+$("itemMethod").onchange=updateTempVisibility;
+
+function openEditor(index=null){
+  editingIndex=index;
+  $("itemEditor").classList.remove("hidden");
+  if(index===null){
+    $("editorTitle").textContent="Add food";
+    $("itemName").value=""; $("itemMethod").value="oven"; $("itemCook").value=20;
+    $("itemTemp").value=currentTempUnit()==="F" ? 400 : 200; $("itemRest").value=0;
+    $("itemPreheat").checked=true; $("itemFavourite").checked=false;
+    $("saveItem").textContent="Add to meal";
+  } else {
+    const x=items[index];
+    $("editorTitle").textContent="Edit food";
+    $("itemName").value=x.name; $("itemMethod").value=x.method; $("itemCook").value=x.cook;
+    $("itemTemp").value=x.temp ? displayTemp(x.temp) : (currentTempUnit()==="F" ? 400 : 200); $("itemRest").value=x.rest||0;
+    $("itemPreheat").checked=!!x.preheat; $("itemFavourite").checked=false;
+    $("saveItem").textContent="Save changes";
+  }
+  updateTempVisibility();
+  $("itemName").focus();
+}
+$("addItemBtn").onclick=()=>openEditor();
+$("cancelItem").onclick=()=>{$("itemEditor").classList.add("hidden"); editingIndex=null};
+
+const SERVESYNC_COOK_DB_KEY="servesync-cooking-db-v1";
+let activeBarcode="";
+let activeBarcodeProduct=null;
+let barcodeReader=null;
+let barcodeControls=null;
+
+function loadCookingDb(){
+  try{return JSON.parse(localStorage.getItem(SERVESYNC_COOK_DB_KEY)||"{}");}
+  catch(e){return {};}
+}
+function saveCookingDb(db){
+  localStorage.setItem(SERVESYNC_COOK_DB_KEY,JSON.stringify(db));
+}
+function cookingRecordFor(code){
+  return loadCookingDb()[String(code)]||null;
+}
+function saveCookingRecord(code,record){
+  const db=loadCookingDb();
+  db[String(code)]={...record,updatedAt:new Date().toISOString()};
+  saveCookingDb(db);
+}
+
+function openBarcodeScanner(){
+  $("barcodeCard").classList.remove("hidden");
+  $("barcodeStatus").innerHTML="";
+  $("barcodeCard").scrollIntoView({behavior:"smooth",block:"start"});
+}
+async function stopBarcodeScan(){
+  try{ if(barcodeControls){ barcodeControls.stop(); barcodeControls=null; } }catch(e){}
+  $("barcodeStage").classList.add("hidden");
+  $("startBarcodeCamera").classList.remove("hidden");
+  $("stopBarcodeCamera").classList.add("hidden");
+}
+$("barcodeBtn").onclick=openBarcodeScanner;
+$("closeBarcode").onclick=async()=>{ await stopBarcodeScan(); $("barcodeCard").classList.add("hidden"); };
+
+function normaliseBarcode(value){
+  return String(value||"").replace(/[^\d]/g,"").trim();
+}
+
+function showBarcodeStatus(htmlText,type="good"){
+  $("barcodeStatus").innerHTML=`<div class="status ${type}" style="margin-top:12px">${htmlText}</div>`;
+}
+
+function barcodeFieldsFromRecord(record){
+  $("barcodeMethod").value=record?.method||"";
+  $("barcodeCook").value=record?.cook||"";
+  $("barcodeRest").value=record?.rest||0;
+  const unit=currentTempUnit();
+  $("barcodeTempLabel").textContent=`Temperature °${unit}`;
+  $("barcodeTemp").value=record?.temp ? displayTemp(record.temp) : "";
+  updateBarcodeTempVisibility();
+}
+
+function updateBarcodeTempVisibility(){
+  const method=$("barcodeMethod").value;
+  $("barcodeTempWrap").classList.toggle("hidden",!["oven","airfryer"].includes(method));
+}
+$("barcodeMethod").onchange=updateBarcodeTempVisibility;
+
+function renderBarcodeProduct(code,product,record,source="lookup"){
+  activeBarcode=String(code);
+  activeBarcodeProduct=product||{};
+  $("barcodeProduct").classList.remove("hidden");
+
+  const name=product?.product_name || record?.name || "Unknown product";
+  const brand=product?.brands || "";
+  $("barcodeProductName").textContent=name;
+  $("barcodeProductBrand").textContent=brand ? `${brand} · barcode ${code}` : `barcode ${code}`;
+
+  const img=product?.image_front_small_url || "";
+  if(img){
+    $("barcodeProductImage").src=img;
+    $("barcodeProductImage").classList.remove("hidden");
+  }else{
+    $("barcodeProductImage").classList.add("hidden");
+  }
+
+  barcodeFieldsFromRecord(record);
+
+  if(record){
+    $("barcodeKnownBadge").innerHTML='<span class="known-badge">✓ Cooking details already known</span>';
+    $("barcodeHelp").className="status good";
+    $("barcodeHelp").innerHTML="ServeSync already has confirmed cooking details for this barcode on this device. Check them, then add the item.";
+  }else{
+    $("barcodeKnownBadge").innerHTML='<span class="unknown-badge">Cooking details needed</span>';
+    $("barcodeHelp").className="status warn";
+    $("barcodeHelp").innerHTML="Product identified, but ServeSync does not yet know how to cook it. Scan the cooking instructions once, then confirm them.";
+  }
+}
+
+async function lookupBarcodeCode(rawCode){
+  const code=normaliseBarcode(rawCode);
+  if(!code){
+    showBarcodeStatus("Enter or scan a barcode first.","bad");
+    return;
+  }
+
+  await stopBarcodeScan();
+  $("barcodeInput").value=code;
+  showBarcodeStatus(`Looking up barcode <strong>${escapeHtml(code)}</strong>…`,"good");
+
+  const localRecord=cookingRecordFor(code);
+
+  // Demo record lets the new flow be tested immediately without relying on a network/database match.
+  if(code==="9990000000001"){
+    const demoProduct={
+      product_name:"Sample Pepperoni Pizza",
+      brands:"ServeSync demo"
+    };
+    const demoRecord=localRecord || {name:"Sample Pepperoni Pizza",method:"oven",cook:15,temp:200,rest:0,preheat:true};
+    renderBarcodeProduct(code,demoProduct,demoRecord,"demo");
+    showBarcodeStatus("Sample barcode recognised. This demonstrates the instant-known-product flow.","good");
+    return;
+  }
+
+  try{
+    const url=`https://world.openfoodfacts.org/api/v3/product/${encodeURIComponent(code)}?fields=code,product_name,brands,image_front_small_url`;
+    const response=await fetch(url,{headers:{"Accept":"application/json"}});
+    if(!response.ok){
+      throw new Error(response.status===404 ? "Product was not found in Open Food Facts." : `Product lookup failed (${response.status}).`);
+    }
+    const data=await response.json();
+    const product=data?.product || {};
+    renderBarcodeProduct(code,product,localRecord,"openfoodfacts");
+
+    if(product.product_name){
+      showBarcodeStatus(`Found <strong>${escapeHtml(product.product_name)}</strong>.`,"good");
+    }else{
+      showBarcodeStatus("Barcode found, but the product name is missing. You can still scan the cooking instructions.","warn");
+    }
+  }catch(err){
+    // The local ServeSync cooking cache can still work if OFF/network is unavailable.
+    if(localRecord){
+      renderBarcodeProduct(code,{product_name:localRecord.name||"Saved product"},localRecord,"local");
+      showBarcodeStatus("Could not reach the product database, but ServeSync already knows this barcode on this device.","warn");
+    }else{
+      renderBarcodeProduct(code,{product_name:"Unknown product"},null,"unknown");
+      showBarcodeStatus(`${escapeHtml(err?.message||"Product lookup failed")} You can still scan the cooking instructions and save this barcode locally.`,"warn");
+    }
+  }
+}
+
+$("lookupBarcode").onclick=()=>lookupBarcodeCode($("barcodeInput").value);
+$("barcodeInput").addEventListener("keydown",ev=>{
+  if(ev.key==="Enter") lookupBarcodeCode($("barcodeInput").value);
+});
+$("demoBarcode").onclick=()=>lookupBarcodeCode("9990000000001");
+
+$("startBarcodeCamera").onclick=async()=>{
+  $("barcodeStatus").innerHTML="";
+  try{
+    if(typeof ZXingBrowser==="undefined"){
+      throw new Error("The barcode-scanning library could not load. Enter the barcode number manually instead.");
+    }
+
+    barcodeReader=new ZXingBrowser.BrowserMultiFormatReader();
+    $("barcodeStage").classList.remove("hidden");
+    $("startBarcodeCamera").classList.add("hidden");
+    $("stopBarcodeCamera").classList.remove("hidden");
+    showBarcodeStatus("Point the rear camera at the barcode.","good");
+
+    const devices=await ZXingBrowser.BrowserMultiFormatReader.listVideoInputDevices();
+    let selected=null;
+    if(devices?.length){
+      selected=devices.find(d=>/back|rear|environment/i.test(d.label||"")) || devices[devices.length-1];
+    }
+
+    barcodeControls=await barcodeReader.decodeFromVideoDevice(
+      selected ? selected.deviceId : undefined,
+      $("barcodeVideo"),
+      async(result,error,controls)=>{
+        if(result){
+          const text=result.getText ? result.getText() : String(result.text||result);
+          if(text){
+            try{ controls?.stop(); }catch(e){}
+            barcodeControls=null;
+            if(navigator.vibrate) try{navigator.vibrate(100);}catch(e){}
+            await lookupBarcodeCode(text);
+          }
+        }
+      }
+    );
+  }catch(err){
+    await stopBarcodeScan();
+    showBarcodeStatus(escapeHtml(err?.message||"Camera barcode scanning could not start. Enter the barcode manually instead."),"warn");
+  }
+};
+$("stopBarcodeCamera").onclick=stopBarcodeScan;
+
+function barcodeItemFromFields(){
+  const method=$("barcodeMethod").value;
+  const tempValue=$("barcodeTemp").value;
+  const name=(activeBarcodeProduct?.product_name || cookingRecordFor(activeBarcode)?.name || "Food").trim();
+  return {
+    id:crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
+    barcode:activeBarcode,
+    name,
+    method,
+    cook:mins($("barcodeCook").value),
+    temp:["oven","airfryer"].includes(method) && tempValue!=="" ? inputTempToC(tempValue) : null,
+    prep:0,
+    rest:mins($("barcodeRest").value),
+    preheat:["oven","airfryer"].includes(method)
+  };
+}
+
+$("barcodeAddMeal").onclick=()=>{
+  const x=barcodeItemFromFields();
+  if(!activeBarcode){ alert("Scan or enter a barcode first."); return; }
+  if(!x.method){ alert("Confirm the cooking method first."); return; }
+  if(!x.cook){ alert("Confirm the cooking time first."); return; }
+  if(["oven","airfryer"].includes(x.method) && !x.temp){
+    alert("Confirm the cooking temperature first.");
+    return;
+  }
+
+  items.push(x);
+  saveCookingRecord(activeBarcode,{
+    name:x.name, method:x.method, cook:x.cook, temp:x.temp,
+    rest:x.rest, preheat:x.preheat
+  });
+  renderItems();
+  $("barcodeCard").classList.add("hidden");
+  showBarcodeStatus("Saved.");
+};
+
+$("barcodeScanInstructions").onclick=()=>{
+  if(!activeBarcode){ alert("Scan or enter the barcode first."); return; }
+
+  // Pass the barcode/product context into the existing crop + OCR instruction scanner.
+  $("barcodeCard").classList.add("hidden");
+  openScanner();
+  $("scanName").value=activeBarcodeProduct?.product_name || "";
+  $("scanSourceNote").textContent=`Cooking instructions will be linked to barcode ${activeBarcode}.`;
+};
+
+let scanImageFile=null;
+let lastScanParsed=null;
+let scanImage=null;
+let cropRect=null;
+let cropDragStart=null;
+let cropDisplayScale=1;
+
+function openScanner(){
+  $("scanCard").classList.remove("hidden");
+  $("scanResult").classList.add("hidden");
+  $("scanWarnings").innerHTML="";
+  $("scanSourceNote").textContent="";
+  $("scanCard").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function closeScanner(){
+  $("scanCard").classList.add("hidden");
+}
+$("scanBtn").onclick=openScanner;
+$("closeScan").onclick=closeScanner;
+
+function drawCropCanvas(){
+  if(!scanImage) return;
+  const canvas=$("cropCanvas");
+  const maxW=Math.min(760, window.innerWidth-50);
+  const scale=Math.min(1, maxW/scanImage.naturalWidth);
+  const w=Math.max(1, Math.round(scanImage.naturalWidth*scale));
+  const h=Math.max(1, Math.round(scanImage.naturalHeight*scale));
+  cropDisplayScale=scale;
+
+  canvas.width=w;
+  canvas.height=h;
+  const ctx=canvas.getContext("2d");
+  ctx.clearRect(0,0,w,h);
+  ctx.drawImage(scanImage,0,0,w,h);
+
+  if(cropRect){
+    const r={
+      x:cropRect.x*scale,
+      y:cropRect.y*scale,
+      w:cropRect.w*scale,
+      h:cropRect.h*scale
+    };
+
+    ctx.save();
+    ctx.fillStyle="rgba(0,0,0,.48)";
+    ctx.fillRect(0,0,w,h);
+    ctx.clearRect(r.x,r.y,r.w,r.h);
+    ctx.drawImage(
+      scanImage,
+      cropRect.x,cropRect.y,cropRect.w,cropRect.h,
+      r.x,r.y,r.w,r.h
+    );
+    ctx.strokeStyle="#ff7a32";
+    ctx.lineWidth=4;
+    ctx.strokeRect(r.x+2,r.y+2,Math.max(0,r.w-4),Math.max(0,r.h-4));
+    ctx.restore();
+  }
+}
+
+function canvasPoint(ev){
+  const canvas=$("cropCanvas");
+  const rect=canvas.getBoundingClientRect();
+  const clientX=ev.clientX ?? (ev.touches && ev.touches[0]?.clientX);
+  const clientY=ev.clientY ?? (ev.touches && ev.touches[0]?.clientY);
+  return {
+    x:Math.max(0,Math.min(canvas.width,(clientX-rect.left)*(canvas.width/rect.width))),
+    y:Math.max(0,Math.min(canvas.height,(clientY-rect.top)*(canvas.height/rect.height)))
+  };
+}
+
+function beginCrop(ev){
+  if(!scanImage) return;
+  ev.preventDefault();
+  const p=canvasPoint(ev);
+  cropDragStart=p;
+  try{$("cropCanvas").setPointerCapture(ev.pointerId);}catch(e){}
+}
+
+function moveCrop(ev){
+  if(!cropDragStart || !scanImage) return;
+  ev.preventDefault();
+  const p=canvasPoint(ev);
+  const x=Math.min(cropDragStart.x,p.x);
+  const y=Math.min(cropDragStart.y,p.y);
+  const w=Math.abs(p.x-cropDragStart.x);
+  const h=Math.abs(p.y-cropDragStart.y);
+
+  if(w<4 || h<4) return;
+
+  cropRect={
+    x:Math.round(x/cropDisplayScale),
+    y:Math.round(y/cropDisplayScale),
+    w:Math.round(w/cropDisplayScale),
+    h:Math.round(h/cropDisplayScale)
+  };
+  drawCropCanvas();
+}
+
+function endCrop(ev){
+  if(!cropDragStart) return;
+  ev.preventDefault();
+  cropDragStart=null;
+}
+
+$("cropCanvas").addEventListener("pointerdown",beginCrop);
+$("cropCanvas").addEventListener("pointermove",moveCrop);
+$("cropCanvas").addEventListener("pointerup",endCrop);
+$("cropCanvas").addEventListener("pointercancel",endCrop);
+
+$("resetCrop").onclick=()=>{
+  if(!scanImage) return;
+  cropRect={
+    x:0,y:0,
+    w:scanImage.naturalWidth,
+    h:scanImage.naturalHeight
+  };
+  drawCropCanvas();
+};
+
+$("tightCropHint").onclick=()=>{
+  alert("Drag from one corner of the cooking-instructions panel to the opposite corner. Try to exclude nutrition tables, logos and promotional text.");
+};
+
+$("packetPhoto").onchange=(ev)=>{
+  const file=ev.target.files && ev.target.files[0];
+  scanImageFile=file||null;
+  $("readPacket").disabled=!file;
+
+  if(!file){
+    scanImage=null;
+    cropRect=null;
+    $("cropStage").classList.add("hidden");
+    return;
+  }
+
+  const url=URL.createObjectURL(file);
+  const img=new Image();
+  img.onload=()=>{
+    scanImage=img;
+    cropRect={
+      x:0,y:0,
+      w:img.naturalWidth,
+      h:img.naturalHeight
+    };
+    $("cropStage").classList.remove("hidden");
+    drawCropCanvas();
+    URL.revokeObjectURL(url);
+  };
+  img.onerror=()=>{
+    scanImage=null;
+    cropRect=null;
+    $("cropStage").classList.add("hidden");
+    alert("ServeSync could not open that image.");
+    URL.revokeObjectURL(url);
+  };
+  img.src=url;
+};
+
+window.addEventListener("resize",()=>{
+  if(scanImage && !$("cropStage").classList.contains("hidden")) drawCropCanvas();
+});
+
+function createEnhancedCropCanvas(){
+  if(!scanImage) throw new Error("Choose a packet photo first.");
+
+  const r=cropRect || {
+    x:0,y:0,w:scanImage.naturalWidth,h:scanImage.naturalHeight
+  };
+
+  if(r.w<40 || r.h<40){
+    throw new Error("The selected area is too small. Drag a larger box around the cooking instructions.");
+  }
+
+  // Upscale the selected region for OCR, but cap dimensions to keep phones responsive.
+  const targetLongest=Math.min(2400,Math.max(1400,Math.max(r.w,r.h)*2));
+  const scale=targetLongest/Math.max(r.w,r.h);
+  const outW=Math.max(1,Math.round(r.w*scale));
+  const outH=Math.max(1,Math.round(r.h*scale));
+
+  const canvas=document.createElement("canvas");
+  canvas.width=outW;
+  canvas.height=outH;
+  const ctx=canvas.getContext("2d",{willReadFrequently:true});
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality="high";
+  ctx.drawImage(scanImage,r.x,r.y,r.w,r.h,0,0,outW,outH);
+
+  // Basic document-style enhancement:
+  // grayscale + local-ish contrast stretch + light thresholding.
+  const imageData=ctx.getImageData(0,0,outW,outH);
+  const d=imageData.data;
+
+  let min=255,max=0;
+  const gray=new Uint8ClampedArray(outW*outH);
+
+  for(let i=0,p=0;i<d.length;i+=4,p++){
+    const g=Math.round(0.299*d[i]+0.587*d[i+1]+0.114*d[i+2]);
+    gray[p]=g;
+    if(g<min) min=g;
+    if(g>max) max=g;
+  }
+
+  const range=Math.max(35,max-min);
+
+  for(let i=0,p=0;i<d.length;i+=4,p++){
+    let g=Math.round((gray[p]-min)*255/range);
+    // Gentle contrast boost rather than hard black/white threshold.
+    g=Math.max(0,Math.min(255,(g-128)*1.35+128));
+    d[i]=d[i+1]=d[i+2]=g;
+    d[i+3]=255;
+  }
+
+  ctx.putImageData(imageData,0,0);
+  return canvas;
+}
+
+function gasMarkToC(mark){
+  const map={1:140,2:150,3:160,4:180,5:190,6:200,7:220,8:230,9:240};
+  return map[Number(mark)]||null;
+}
+
+function guessItemName(text){
+  const bad=/cook|cooking|instruction|oven|microwave|air\s*fryer|hob|saucepan|boil|simmer|minute|min\b|°|degrees|gas\s*mark|nutrition|ingredient|storage|frozen|preheat|heat|serving/i;
+  const lines=text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+  for(const line of lines){
+    const cleaned=line.replace(/[^\w\s&'()\-]/g," ").replace(/\s+/g," ").trim();
+    if(cleaned.length>=3 && cleaned.length<=55 && !bad.test(cleaned) && /[A-Za-z]{3}/.test(cleaned)){
+      return cleaned.replace(/\b\w/g,c=>c.toUpperCase());
+    }
+  }
+  return "";
+}
+
+function parsePacketText(raw){
+  const text=String(raw||"").replace(/[–—]/g,"-").replace(/\s+/g," ").trim();
+  const lower=text.toLowerCase();
+  const methods=[];
+  if(/air\s*fryer|airfryer/.test(lower)) methods.push("airfryer");
+  if(/microwave/.test(lower)) methods.push("microwave");
+  if(/\boven\b|\bfan\b|gas\s*mark|\bbake\b|\broast\b/.test(lower)) methods.push("oven");
+  if(/\bhob\b|saucepan|\bboil\b|\bsimmer\b/.test(lower)) methods.push("hob");
+
+  // Preserve first method mentioned as a reasonable initial suggestion,
+  // but explicitly warn when the packet contains multiple methods.
+  let method="";
+  let firstPos=Infinity;
+  const methodPatterns={
+    airfryer:/air\s*fryer|airfryer/i,
+    microwave:/microwave/i,
+    oven:/\boven\b|\bfan\b|gas\s*mark|\bbake\b|\broast\b/i,
+    hob:/\bhob\b|saucepan|\bboil\b|\bsimmer\b/i
+  };
+  for(const [m,rex] of Object.entries(methodPatterns)){
+    const match=text.match(rex);
+    if(match && match.index<firstPos){ firstPos=match.index; method=m; }
+  }
+
+  let tempC=null, sourceTemp="";
+  const cMatch=text.match(/(\d{2,3})\s*(?:°|º)?\s*c\b/i);
+  const fMatch=text.match(/(\d{3})\s*(?:°|º)?\s*f\b/i);
+  const gasMatch=text.match(/gas\s*mark\s*(\d)/i);
+  if(cMatch){
+    tempC=Number(cMatch[1]); sourceTemp=`${cMatch[1]}°C`;
+  }else if(fMatch){
+    tempC=fToC(Number(fMatch[1])); sourceTemp=`${fMatch[1]}°F`;
+  }else if(gasMatch){
+    tempC=gasMarkToC(gasMatch[1]); sourceTemp=`Gas Mark ${gasMatch[1]}`;
+  }
+
+  const timeRanges=[...text.matchAll(/(\d{1,3})\s*(?:-|to)\s*(\d{1,3})\s*(?:minutes?|mins?|min)\b/gi)];
+  const simpleTimes=[...text.matchAll(/(\d{1,3})\s*(?:minutes?|mins?|min)\b/gi)];
+  const hourTimes=[...text.matchAll(/(\d+(?:\.\d+)?)\s*(?:hours?|hrs?|hr)\b/gi)];
+
+  let cook=null, sourceTime="";
+  if(timeRanges.length){
+    // Use the upper value from the longest detected range, then ask the user to confirm.
+    const best=timeRanges
+      .map(m=>({low:Number(m[1]),high:Number(m[2]),raw:m[0]}))
+      .sort((a,b)=>b.high-a.high)[0];
+    cook=best.high; sourceTime=best.raw;
+  }else if(simpleTimes.length){
+    // Choosing the largest visible minute value avoids accidentally selecting "stand for 1 min"
+    // when the same instruction also includes a longer cook time.
+    const best=simpleTimes
+      .map(m=>({v:Number(m[1]),raw:m[0]}))
+      .sort((a,b)=>b.v-a.v)[0];
+    cook=best.v; sourceTime=best.raw;
+  }else if(hourTimes.length){
+    const best=hourTimes
+      .map(m=>({v:Math.round(Number(m[1])*60),raw:m[0]}))
+      .sort((a,b)=>b.v-a.v)[0];
+    cook=best.v; sourceTime=best.raw;
+  }
+
+  const warnings=[];
+  if(!method) warnings.push("Cooking method was not confidently detected.");
+  if(["oven","airfryer"].includes(method) && !tempC) warnings.push("Temperature was not confidently detected.");
+  if(!cook) warnings.push("Cooking time was not confidently detected.");
+  if([...new Set(methods)].length>1) warnings.push("The packet appears to list more than one cooking method. Check the selected method, time and temperature.");
+  if(timeRanges.length) warnings.push("A cooking-time range was detected. ServeSync has selected the longer time; please confirm it.");
+
+  return {
+    name:guessItemName(raw),
+    method,
+    tempC,
+    cook,
+    sourceTemp,
+    sourceTime,
+    warnings,
+    raw
+  };
+}
+
+function renderScanResult(parsed){
+  lastScanParsed=parsed;
+  $("scanResult").classList.remove("hidden");
+  $("scanName").value=(activeBarcodeProduct?.product_name || parsed.name || "");
+  $("scanMethod").value=parsed.method||"";
+  $("scanCook").value=parsed.cook||"";
+  $("scanPreheat").checked=["oven","airfryer"].includes(parsed.method);
+
+  const unit=currentTempUnit();
+  $("scanTempLabel").textContent=`Temperature °${unit}`;
+  $("scanTemp").value=parsed.tempC ? displayTemp(parsed.tempC) : "";
+  $("scanTempWrap").classList.toggle("hidden",!["oven","airfryer"].includes(parsed.method));
+
+  $("scanWarnings").innerHTML=parsed.warnings.length
+    ? `<div class="status warn">${parsed.warnings.map(w=>`• ${escapeHtml(w)}`).join("<br>")}</div>`
+    : '<div class="status good">✓ Cooking method, time and temperature were detected. Please still check them against the packet.</div>';
+
+  const source=[];
+  if(parsed.sourceTime) source.push(`time: ${parsed.sourceTime}`);
+  if(parsed.sourceTemp) source.push(`temperature: ${parsed.sourceTemp}`);
+  $("scanSourceNote").textContent=source.length ? `Read from packet — ${source.join(" · ")}` : "";
+
+  $("scanResult").scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+$("scanMethod").onchange=()=>{
+  const method=$("scanMethod").value;
+  $("scanTempWrap").classList.toggle("hidden",!["oven","airfryer"].includes(method));
+  $("scanPreheat").checked=["oven","airfryer"].includes(method);
+};
+
+$("analyseScanText").onclick=()=>{
+  const raw=$("scanRawText").value.trim();
+  if(!raw){ alert("Add or scan some cooking-instruction text first."); return; }
+  renderScanResult(parsePacketText(raw));
+};
+
+$("readPacket").onclick=async()=>{
+  if(!scanImageFile) return;
+
+  $("scanProgressWrap").classList.remove("hidden");
+  $("scanProgressBar").style.width="2%";
+  $("scanProgressText").textContent="Preparing selected area…";
+  $("readPacket").disabled=true;
+
+  try{
+    if(typeof Tesseract==="undefined"){
+      throw new Error("The OCR library could not load. Check your internet connection, or paste the cooking instructions into the text box instead.");
+    }
+
+    const enhancedCrop=createEnhancedCropCanvas();
+    const result=await Tesseract.recognize(enhancedCrop,"eng",{
+      logger:m=>{
+        if(m.status) $("scanProgressText").textContent=m.status.replace(/\b\w/g,c=>c.toUpperCase());
+        if(typeof m.progress==="number") $("scanProgressBar").style.width=`${Math.max(2,Math.round(m.progress*100))}%`;
+      }
+    });
+
+    const raw=(result && result.data && result.data.text ? result.data.text : "").trim();
+    $("scanRawText").value=raw;
+
+    if(!raw){
+      throw new Error("No readable text was found. Try a closer, brighter photo of the cooking instructions.");
+    }
+
+    $("scanProgressBar").style.width="100%";
+    $("scanProgressText").textContent="Text read — check the result below.";
+    renderScanResult(parsePacketText(raw));
+  }catch(err){
+    $("scanProgressText").textContent=err && err.message ? err.message : "The packet could not be read.";
+    $("scanProgressBar").style.width="0%";
+  }finally{
+    $("readPacket").disabled=false;
+  }
+};
+
+function scannedItemFromFields(){
+  const method=$("scanMethod").value;
+  const tempValue=$("scanTemp").value;
+  return {
+    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
+    name:$("scanName").value.trim(),
+    method,
+    cook:mins($("scanCook").value),
+    temp:["oven","airfryer"].includes(method) && tempValue!=="" ? inputTempToC(tempValue) : null,
+    prep:0,
+    rest:0,
+    preheat:["oven","airfryer"].includes(method) ? $("scanPreheat").checked : false
+  };
+}
+
+$("addScannedItem").onclick=()=>{
+  const x=scannedItemFromFields();
+  if(!x.name){ alert("Give the item a name before adding it."); return; }
+  if(!x.method){ alert("Choose the cooking method before adding it."); return; }
+  if(!x.cook){ alert("Confirm the cooking time before adding it."); return; }
+  if(["oven","airfryer"].includes(x.method) && !x.temp){
+    alert("Confirm the cooking temperature before adding it.");
+    return;
+  }
+  items.push(x);
+
+  if(activeBarcode){
+    saveCookingRecord(activeBarcode,{
+      name:x.name, method:x.method, cook:x.cook, temp:x.temp,
+      rest:x.rest, preheat:x.preheat
+    });
+  }
+
+  renderItems();
+  $("scanCard").classList.add("hidden");
+};
+
+$("editScannedItem").onclick=()=>{
+  const x=scannedItemFromFields();
+  $("scanCard").classList.add("hidden");
+  editingIndex=null;
+  $("itemEditor").classList.remove("hidden");
+  $("editorTitle").textContent="Review scanned food";
+  $("itemName").value=x.name;
+  $("itemMethod").value=x.method||"oven";
+  $("itemCook").value=x.cook||20;
+  $("itemTemp").value=x.temp ? displayTemp(x.temp) : (currentTempUnit()==="F" ? 400 : 200);
+  $("itemRest").value=0;
+  $("itemPreheat").checked=x.preheat;
+  $("itemFavourite").checked=false;
+  $("saveItem").textContent="Add to meal";
+  updateTempVisibility();
+  $("itemEditor").scrollIntoView({behavior:"smooth",block:"start"});
+};
+
+function currentItemFromForm(){
+  return {
+    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
+    name: $("itemName").value.trim(),
+    method: $("itemMethod").value,
+    cook: mins($("itemCook").value),
+    temp: ["oven","airfryer"].includes($("itemMethod").value) ? inputTempToC($("itemTemp").value) : null,
+    prep: 0,
+    rest: mins($("itemRest").value),
+    preheat: ["oven","airfryer"].includes($("itemMethod").value) ? $("itemPreheat").checked : false
+  };
+}
+$("saveItem").onclick=()=>{
+  const x=currentItemFromForm();
+  if(!x.name){ alert("Give the item a name first."); return; }
+  if(x.cook===0){ alert("Add a cooking time."); return; }
+  if(editingIndex===null) items.push(x); else { x.id=items[editingIndex].id; items[editingIndex]=x; }
+  if($("itemFavourite").checked){
+    const favs=JSON.parse(localStorage.getItem("servesync-favs")||"[]");
+    favs.push({...x,id:undefined}); localStorage.setItem("servesync-favs",JSON.stringify(favs.slice(-30)));
+  }
+  $("itemEditor").classList.add("hidden"); editingIndex=null;
+  renderItems(); renderFavourites();
+};
+
+function renderItems(){
+  const host=$("itemsList");
+  if(!items.length){host.innerHTML='<p class="muted">Nothing added yet.</p>';return}
+  host.innerHTML=items.map((x,i)=>`
+    <div class="item">
+      <div><strong>${escapeHtml(x.name)}</strong>
+      <div class="meta">${methodLabel[x.method]}${x.temp?` · ${fmtTemp(x.temp)}`:""} · cook ${x.cook}m${x.rest?` · rest ${x.rest}m`:""}</div></div>
+      <div>
+        <button class="iconbtn" onclick="openEditor(${i})">Edit</button>
+        <button class="iconbtn" onclick="removeItem(${i})">×</button>
+      </div>
+    </div>`).join("");
+}
+window.removeItem=i=>{items.splice(i,1);renderItems()};
+
+function renderFavourites(){
+  const favs=JSON.parse(localStorage.getItem("servesync-favs")||"[]");
+  $("favouritesCard").classList.toggle("hidden",!favs.length);
+  $("favouritesList").innerHTML=favs.map((x,i)=>`
+    <div class="item"><div><strong>${escapeHtml(x.name)}</strong><div class="meta">${methodLabel[x.method]} · ${x.cook}m</div></div>
+    <button class="btn ghost" onclick="addFav(${i})">Add</button></div>`).join("");
+}
+window.addFav=i=>{
+  const favs=JSON.parse(localStorage.getItem("servesync-favs")||"[]");
+  const x={...favs[i],id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random())};
+  items.push(x); renderItems();
+};
+renderItems(); renderFavourites();
+
+$("sampleBtn").onclick=()=>{
+  items=[
+    {id:"c",name:"Roast chicken",method:"oven",cook:80,temp:200,prep:0,rest:15,preheat:true},
+    {id:"p",name:"Roast potatoes",method:"oven",cook:50,temp:200,prep:0,rest:0,preheat:false},
+    {id:"y",name:"Yorkshire puddings",method:"oven",cook:20,temp:200,prep:0,rest:0,preheat:false},
+    {id:"ca",name:"Carrots",method:"hob",cook:15,temp:null,prep:0,rest:0,preheat:false},
+    {id:"pe",name:"Peas",method:"hob",cook:5,temp:null,prep:0,rest:0,preheat:false}
+  ];
+  renderItems();
+};
+
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+
+function getKitchen(){
+  return {
+    oven: mins($("ovens").value),
+    hob: mins($("hobs").value),
+    microwave: mins($("microwaves").value),
+    airfryer: mins($("airfryers").value),
+    none: 999
+  };
+}
+
+// Resource model:
+// - One "cook" can do one hands-on preparation task at a time.
+// - Ovens, hob rings, microwaves and air fryers are separate passive resources.
+// - The cook can prepare food while an appliance is preheating or cooking.
+
+function overlaps(a,b){
+  return a.start < b.end && a.end > b.start;
+}
+
+// Oven cooking can overlap another oven-cooking booking at the same temperature.
+// Preheating itself is exclusive because the oven is not yet at cooking temperature.
+function fitsApplianceBooking(candidate, bookings, method){
+  for(const b of bookings){
+    if(!overlaps(candidate,b)) continue;
+
+    const shareSameTempOven =
+      method==="oven" &&
+      candidate.type==="cook" &&
+      b.type==="cook" &&
+      candidate.temp &&
+      b.temp &&
+      candidate.temp===b.temp;
+
+    if(shareSameTempOven) continue;
+    return false;
+  }
+  return true;
+}
+
+function latestApplianceSlot(endDeadline,duration,item,unitBookings){
+  const maxBack=24*60;
+
+  for(let back=0; back<=maxBack; back++){
+    const end=addMin(endDeadline,-back);
+    const start=addMin(end,-duration);
+    const cookBooking={start,end,temp:item.temp,type:"cook"};
+
+    if(fitsApplianceBooking(cookBooking,unitBookings,item.method)){
+      return {start,end};
+    }
+  }
+
+  return null;
+}
+
+// After all cooking bookings are placed, derive heating instructions from the
+// appliance timeline. One oven preheat is created per temperature run, not per dish.
+function deriveHeatingPlan(resources,assigned){
+  const heatingByItem=new Map();
+
+  for(const method of ["oven","airfryer"]){
+    const units=resources[method]||[];
+
+    units.forEach((bookings,unit)=>{
+      const cooks=bookings
+        .filter(b=>b.type==="cook")
+        .sort((a,b)=>a.start-b.start || a.end-b.end);
+
+      let currentTemp=null;
+
+      for(let i=0;i<cooks.length;i++){
+        const booking=cooks[i];
+        const item=assigned.find(a=>a.id===booking.itemId);
+        if(!item || !item.temp) continue;
+
+        // First use of this appliance, or a real temperature change.
+        if(currentTemp===null || currentTemp!==item.temp){
+          const heatStart=addMin(booking.start,-10);
+
+          // Check that the 10-minute heat-up window does not overlap a previous
+          // incompatible booking on the same appliance.
+          const previous=cooks
+            .filter(b=>b.end<=booking.start && b!==booking)
+            .sort((a,b)=>b.end-a.end)[0] || null;
+
+          const effectiveStart = previous && previous.end > heatStart
+            ? previous.end
+            : heatStart;
+
+          heatingByItem.set(item.id,{
+            start:effectiveStart,
+            end:booking.start,
+            temp:item.temp,
+            method,
+            unit
+          });
+
+          currentTemp=item.temp;
+        }
+      }
+    });
+  }
+
+  return heatingByItem;
+}
+
+function fitsCookBooking(candidate,cookBookings){
+  return !cookBookings.some(b=>overlaps(candidate,b));
+}
+
+function latestCookSlot(endDeadline,duration,cookBookings){
+  const maxBack=24*60;
+  for(let back=0; back<=maxBack; back++){
+    const end=addMin(endDeadline,-back);
+    const start=addMin(end,-duration);
+    const candidate={start,end};
+    if(fitsCookBooking(candidate,cookBookings)) return candidate;
+  }
+  return null;
+}
+
+function mergeParallelPrepEvents(events){
+  events.sort((a,b)=>a.time-b.time);
+
+  const grouped=[];
+  let i=0;
+
+  while(i<events.length){
+    const stamp=events[i].time.getTime();
+    const sameTime=[];
+    while(i<events.length && events[i].time.getTime()===stamp){
+      sameTime.push(events[i]);
+      i++;
+    }
+
+    const parallel=sameTime.filter(e=>e.kind==="prep" || e.kind==="preheat");
+    const others=sameTime.filter(e=>e.kind!=="prep" && e.kind!=="preheat");
+
+    if(parallel.length>1){
+      grouped.push({
+        time:new Date(stamp),
+        text:parallel.map(e=>e.text).join(" + "),
+        kind:"parallel"
+      });
+    }else if(parallel.length===1){
+      grouped.push(parallel[0]);
+    }
+
+    grouped.push(...others);
+  }
+
+  grouped.sort((a,b)=>{
+    if(a.time-b.time) return a.time-b.time;
+    const priority={parallel:0,preheat:0,prep:0,start:1,rest:2,ready:2,serve:3};
+    return (priority[a.kind]??5)-(priority[b.kind]??5);
+  });
+
+  return grouped;
+}
+
+function createBackwardPlan(serveTime){
+  const k=getKitchen();
+
+  // Passive appliance resources.
+  const resources={oven:[],hob:[],microwave:[],airfryer:[]};
+  for(const m of Object.keys(resources)){
+    for(let i=0;i<k[m];i++) resources[m].push([]);
+  }
+
+  const assigned=[];
+  const activeOnly=[];
+
+  // Foods that need to finish earlier because they rest get priority.
+  // Longer cooks are then placed before shorter ones when deadlines tie.
+  const sorted=[...items].sort((a,b)=>b.rest-a.rest || b.cook-a.cook);
+
+  // Phase 1: place passive appliance cooking.
+  for(const item of sorted){
+    const cookEndDeadline=addMin(serveTime,-item.rest);
+
+    if(item.method==="none"){
+      activeOnly.push({...item,activeDeadline:cookEndDeadline});
+      continue;
+    }
+
+    if(!resources[item.method] || !resources[item.method].length){
+      return {error:`No ${methodLabel[item.method].toLowerCase()} is available for ${item.name}.`};
+    }
+
+    let best=null;
+
+    resources[item.method].forEach((bookings,unit)=>{
+      const slot=latestApplianceSlot(
+        cookEndDeadline,
+        item.cook,
+        item,
+        bookings
+      );
+
+      if(slot && (!best || slot.end>best.end)){
+        best={...slot,unit};
+      }
+    });
+
+    if(!best){
+      return {error:`Could not find a realistic ${methodLabel[item.method].toLowerCase()} slot for ${item.name}, including any required preheating.`};
+    }
+
+    const unitBookings=resources[item.method][best.unit];
+
+    unitBookings.push({
+      start:best.start,
+      end:best.end,
+      temp:item.temp,
+      type:"cook",
+      itemId:item.id
+    });
+
+    assigned.push({
+      ...item,
+      unit:best.unit,
+      cookStart:best.start,
+      cookEnd:best.end,
+      preheatStart:null,
+      prepStart:null,
+      prepEnd:null
+    });
+  }
+
+  // Phase 2: place the human work on one cook timeline.
+  // Prep can overlap appliance preheating/cooking, but prep jobs cannot overlap each other.
+  const cookBookings=[];
+  const activeTasks=[];
+
+  for(const a of assigned){
+    if(a.prep>0){
+      activeTasks.push({
+        type:"prep",
+        item:a,
+        duration:a.prep,
+        deadline:a.cookStart
+      });
+    }
+  }
+
+  for(const item of activeOnly){
+    const duration=item.prep+item.cook;
+    if(duration>0){
+      activeTasks.push({
+        type:"activeOnly",
+        item,
+        duration,
+        deadline:item.activeDeadline
+      });
+    }
+  }
+
+  // Work backwards from the latest deadlines so hands-on jobs happen
+  // as late as possible without asking one cook to do two things at once.
+  activeTasks.sort((a,b)=>b.deadline-a.deadline || b.duration-a.duration);
+
+  for(const task of activeTasks){
+    const slot=latestCookSlot(task.deadline,task.duration,cookBookings);
+    if(!slot){
+      return {error:`There is not enough hands-on preparation time to complete ${task.item.name} with one cook.`};
+    }
+
+    cookBookings.push({start:slot.start,end:slot.end,itemId:task.item.id});
+
+    if(task.type==="prep"){
+      task.item.prepStart=slot.start;
+      task.item.prepEnd=slot.end;
+    }else{
+      assigned.push({
+        ...task.item,
+        unit:0,
+        cookStart:slot.start,
+        cookEnd:slot.end,
+        prepStart:slot.start,
+        prepEnd:slot.end,
+        preheatStart:null,
+        activeOnly:true
+      });
+    }
+  }
+
+  // Derive oven/air-fryer heating from the appliance timeline.
+  // This creates one preheat per temperature run rather than one per food.
+  const heatingPlan=deriveHeatingPlan(resources,assigned);
+  for(const a of assigned){
+    const heat=heatingPlan.get(a.id);
+    if(heat){
+      a.preheatStart=heat.start;
+      a.preheatEnd=heat.end;
+    }
+  }
+
+  // Phase 3: turn the resource plan into instructions.
+  let events=[];
+
+  for(const a of assigned){
+    if(a.activeOnly){
+      events.push({
+        time:a.prepStart,
+        text:`Prepare ${a.name}`,
+        kind:"prep"
+      });
+
+      if(a.rest>0){
+        events.push({
+          time:a.cookEnd,
+          text:`Finish ${a.name} and rest for ${a.rest} min`,
+          kind:"rest"
+        });
+      }else{
+        events.push({
+          time:a.cookEnd,
+          text:`${a.name} is ready`,
+          kind:"ready"
+        });
+      }
+      continue;
+    }
+
+    if(a.prep>0 && a.prepStart){
+      events.push({
+        time:a.prepStart,
+        text:`Prepare ${a.name}`,
+        kind:"prep"
+      });
+    }
+
+    if(a.preheatStart){
+      events.push({
+        time:a.preheatStart,
+        text:`Preheat ${methodLabel[a.method].toLowerCase()} ${a.unit+1}${a.temp?` to ${fmtTemp(a.temp)}`:""}`,
+        kind:"preheat"
+      });
+    }
+
+    if(a.cook>0){
+      events.push({
+        time:a.cookStart,
+        text:`Put ${a.name} ${a.method==="hob"?"on the hob":`in ${methodLabel[a.method].toLowerCase()} ${a.unit+1}`}${a.temp?` at ${fmtTemp(a.temp)}`:""}`,
+        kind:"start"
+      });
+
+      if(a.rest>0){
+        events.push({
+          time:a.cookEnd,
+          text:`Take ${a.name} out and rest for ${a.rest} min`,
+          kind:"rest"
+        });
+      }else{
+        events.push({
+          time:a.cookEnd,
+          text:`${a.name} is ready`,
+          kind:"ready"
+        });
+      }
+    }
+  }
+
+  events.push({time:serveTime,text:"Serve meal",kind:"serve"});
+
+  // When prep and preheating genuinely begin together, present them as
+  // one parallel instruction instead of two competing alerts.
+  events=mergeParallelPrepEvents(events);
+
+  return {
+    events,
+    assigned,
+    serveTime,
+    earliest:events[0].time
+  };
+}
+
+function planMeal(){
+  $("planStatus").innerHTML="";
+  if(!items.length){ $("planStatus").innerHTML='<div class="status bad">Add at least one food item first.</div>'; return; }
+  const now=new Date(); now.setSeconds(0,0);
+
+  let result, startAllowed, requestedServe=null, adjusted=false;
+  if(mode==="ready"){
+    requestedServe=nextOccurrence($("readyTime").value,now);
+    result=createBackwardPlan(requestedServe);
+    if(result.error){showError(result.error);return}
+    if(result.earliest < now){
+      const shift=diffMin(now,result.earliest);
+      const newServe=addMin(requestedServe,shift);
+      result=createBackwardPlan(newServe);
+      adjusted=true;
+      $("planStatus").innerHTML=`<div class="status warn"><strong>${toClock(requestedServe)} is now too soon.</strong><br>Earliest realistic serving time: <strong>${toClock(newServe)}</strong>.</div>`;
+    } else {
+      $("planStatus").innerHTML=`<div class="status good">✓ ServeSync will tell you to start at <strong>${toClock(result.earliest)}</strong> and have everything ready by <strong>${toClock(result.serveTime)}</strong>.</div>`;
+    }
+  } else {
+    startAllowed=nextOccurrence($("startTimeOnly").value,now);
+    // Translation-invariant trick: build around a dummy serving time, then shift so first event equals chosen start.
+    const dummy=addMin(startAllowed,360);
+    let base=createBackwardPlan(dummy);
+    if(base.error){showError(base.error);return}
+    const span=diffMin(dummy,base.earliest);
+    const serve=addMin(startAllowed,span);
+    result=createBackwardPlan(serve);
+    $("planStatus").innerHTML=`<div class="status good">✓ Start at <strong>${toClock(startAllowed)}</strong>. Earliest planned serving time: <strong>${toClock(result.serveTime)}</strong>.</div>`;
+  }
+  schedule=result.events.map((e,i)=>({...e,id:i,done:false}));
+  cookingModeActive=false;
+  alertsEnabled=false;
+  alertedEvents.clear();
+  if(cookingTimer){ clearInterval(cookingTimer); cookingTimer=null; }
+  $("cookingCard").classList.add("hidden");
+  $("cookingOverlay").classList.add("hidden");
+  document.body.style.overflow="";
+  renderSchedule();
+}
+function showError(msg){$("planStatus").innerHTML=`<div class="status bad">${escapeHtml(msg)}</div>`}
+$("planBtn").onclick=planMeal;
+
+function renderSchedule(shouldScroll=true){
+  $("scheduleCard").classList.remove("hidden");
+  $("serveSummary").textContent=`Serve at ${toClock(schedule[schedule.length-1].time)} · ${schedule.length-1} cooking actions`;
+  $("timeline").innerHTML=schedule.map((e,i)=>`
+    <div class="event ${e.done?"done":""}" data-i="${i}">
+      <div class="time">${toClock(e.time)}</div>
+      <div class="dot"></div>
+      <div class="what"><label style="font-weight:650"><input type="checkbox" ${e.done?"checked":""} onchange="toggleEvent(${i},this.checked)" style="width:auto;margin-right:8px">${escapeHtml(e.text)}</label></div>
+    </div>`).join("");
+  if(shouldScroll) $("scheduleCard").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+let cookingTimer = null;
+let alertedEvents = new Set();
+let audioContext = null;
+let cookingModeActive = false;
+let alertsEnabled = false;
+let keepAwakeEnabled = true;
+let wakeLock = null;
+
+function formatCountdown(ms){
+  const total = Math.max(0, Math.ceil(ms/1000));
+  const h = Math.floor(total/3600);
+  const m = Math.floor((total%3600)/60);
+  const s = total%60;
+  return h>0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+}
+
+function ensureAudio(){
+  try{
+    if(!audioContext){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(AC) audioContext = new AC();
+    }
+    if(audioContext && audioContext.state==="suspended") audioContext.resume();
+  }catch(e){}
+}
+
+function soundAlarm(){
+  try{
+    ensureAudio();
+    if(audioContext){
+      const now = audioContext.currentTime;
+      [0,.28,.56].forEach(offset=>{
+        const osc=audioContext.createOscillator();
+        const gain=audioContext.createGain();
+        osc.frequency.value=880;
+        gain.gain.setValueAtTime(0.0001,now+offset);
+        gain.gain.exponentialRampToValueAtTime(0.22,now+offset+.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001,now+offset+.18);
+        osc.connect(gain); gain.connect(audioContext.destination);
+        osc.start(now+offset); osc.stop(now+offset+.2);
+      });
+    }
+  }catch(e){}
+  try{ if(navigator.vibrate) navigator.vibrate([250,120,250,120,350]); }catch(e){}
+}
+
+function speakInstruction(text){
+  try{
+    if("speechSynthesis" in window){
+      speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(text);
+      u.rate=0.95;
+      speechSynthesis.speak(u);
+    }
+  }catch(e){}
+}
+
+function sendAlert(event){
+  soundAlarm();
+  speakInstruction(event.text);
+  try{
+    if("Notification" in window && Notification.permission==="granted"){
+      new Notification("ServeSync", {body:event.text, tag:`servesync-${event.id}`});
+    }
+  }catch(e){}
+}
+
+async function requestWakeLock(){
+  try{
+    if("wakeLock" in navigator){
+      wakeLock=await navigator.wakeLock.request("screen");
+    }
+  }catch(e){}
+}
+async function releaseWakeLock(){
+  try{ if(wakeLock){ await wakeLock.release(); wakeLock=null; } }catch(e){}
+}
+
+function shiftRemaining(minutes, afterEvent=null){
+  if(minutes<=0) return;
+  let passed = afterEvent===null;
+  for(const e of schedule){
+    if(afterEvent && e.id===afterEvent.id){ passed=true; continue; }
+    if(passed && !e.done) e.time=addMin(e.time, minutes);
+  }
+}
+
+function conservativeLateReschedule(event, lateMinutes){
+  if(lateMinutes<=0) return 0;
+  shiftRemaining(lateMinutes, event);
+  const msg=`<div class="status warn"><strong>Plan moved by ${lateMinutes} minute${lateMinutes===1?"":"s"}.</strong><br>New serving time: <strong>${toClock(schedule[schedule.length-1].time)}</strong>.</div>`;
+  $("overlayStatus").innerHTML=msg;
+  return lateMinutes;
+}
+
+// Alarms are clock-driven, not dependent on tapping Done.
+function checkDueAlerts(){
+  if(!cookingModeActive || !alertsEnabled) return;
+  const now=new Date();
+  for(const e of schedule){
+    if(e.done || alertedEvents.has(e.id)) continue;
+    if(e.time <= now){
+      alertedEvents.add(e.id);
+      sendAlert(e);
+    }
+  }
+}
+
+function currentDisplayEvent(){
+  const now=new Date();
+  const incomplete=schedule.filter(e=>!e.done);
+  if(!incomplete.length) return null;
+
+  // Show the most recently due incomplete event. If none are due, show the next future event.
+  const due=incomplete.filter(e=>e.time<=now);
+  if(due.length) return due[due.length-1];
+  return incomplete[0];
+}
+
+function renderUpcoming(){
+  const now=new Date();
+  const current=currentDisplayEvent();
+  const future=schedule
+    .filter(e=>!e.done && e!==current && e.time>now);
+
+  const next=future[0]||null;
+  if(next){
+    $("nextUpCard").classList.remove("hidden");
+    $("nextUpTime").textContent=toClock(next.time);
+    $("nextUpText").textContent=next.text;
+  }else{
+    $("nextUpCard").classList.add("hidden");
+  }
+
+  const later=future.slice(1,5);
+  $("upcomingList").innerHTML = later.length
+    ? later.map(e=>`<div class="upcoming-row"><div class="u-time">${toClock(e.time)}</div><div>${escapeHtml(e.text)}</div></div>`).join("")
+    : '<div class="muted" style="padding:12px 0">No later steps.</div>';
+}
+
+function updateCookingMode(){
+  checkDueAlerts();
+
+  const event=currentDisplayEvent();
+  if(!event){
+    $("overlayWhen").textContent="COMPLETE";
+    $("overlayInstruction").textContent="Everything is ready. Serve your meal.";
+    $("overlayCountdown").textContent="✓";
+    $("overlayCountdownLabel").textContent="meal complete";
+    $("overlayDone").disabled=true;
+    $("overlayLate").disabled=true;
+    renderUpcoming();
+    return;
+  }
+
+  const now=new Date();
+  const delta=event.time-now;
+  const overdue=Math.max(0,Math.floor((-delta)/60000));
+
+  $("overlayWhen").textContent = delta<=0 ? `DO THIS NOW · ${toClock(event.time)}` : `NEXT · ${toClock(event.time)}`;
+  $("overlayInstruction").textContent=event.text;
+
+  if(delta>0){
+    $("overlayCountdown").textContent=formatCountdown(delta);
+    $("overlayCountdownLabel").textContent="until next action";
+  }else{
+    $("overlayCountdown").textContent=overdue>0 ? `${overdue}m late` : "NOW";
+    $("overlayCountdownLabel").textContent=overdue>0 ? "this step is overdue" : "do this now";
+  }
+
+  $("overlayDone").disabled=false;
+  $("overlayLate").disabled=false;
+  renderUpcoming();
+}
+
+function startTicker(){
+  if(cookingTimer) clearInterval(cookingTimer);
+  cookingTimer=setInterval(updateCookingMode,1000);
+  updateCookingMode();
+}
+
+window.toggleEvent=(i,v)=>{
+  schedule[i].done=v;
+  renderSchedule(false);
+  updateCookingMode();
+};
+
+$("resetChecks").onclick=()=>{
+  schedule.forEach(e=>e.done=false);
+  alertedEvents.clear();
+  renderSchedule();
+  updateCookingMode();
+};
+
+async function enableAlerts(showConfirmation=true){
+  ensureAudio();
+
+  // Do not suddenly fire every step that was already due before alerts were enabled.
+  const now=new Date();
+  for(const e of schedule){
+    if(e.time <= now) alertedEvents.add(e.id);
+  }
+
+  alertsEnabled=true;
+  let msg="Sound, vibration and spoken prompts enabled.";
+  try{
+    if("Notification" in window){
+      if(Notification.permission==="default"){
+        const permission=await Notification.requestPermission();
+        if(permission==="granted") msg="Sound, vibration, spoken prompts and browser notifications enabled.";
+      } else if(Notification.permission==="granted"){
+        msg="Sound, vibration, spoken prompts and browser notifications enabled.";
+      } else {
+        msg="Sound, vibration and spoken prompts enabled. Browser notifications are blocked.";
+      }
+    }
+  }catch(e){}
+
+  $("overlayAlerts").textContent="🔔 Alerts are On";
+  if(showConfirmation){
+    $("overlayStatus").innerHTML=`<div class="status good">${msg}</div>`;
+    soundAlarm();
+  }
+}
+
+function disableAlerts(){
+  alertsEnabled=false;
+  $("overlayAlerts").textContent="🔕 Alerts are Off";
+  $("overlayStatus").innerHTML='<div class="status good">Alerts are off. The live cooking screen will still follow the schedule.</div>';
+}
+
+$("cookingModeBtn").onclick=()=>{
+  $("cookingCard").classList.remove("hidden");
+  $("cookingCard").scrollIntoView({behavior:"smooth"});
+};
+
+async function openHandsFreeMode(withAlerts){
+  cookingModeActive=true;
+  alertsEnabled=false;
+  keepAwakeEnabled=$("keepScreenAwake").checked;
+  alertedEvents.clear();
+  $("cookingOverlay").classList.remove("hidden");
+  document.body.style.overflow="hidden";
+  $("overlayStatus").innerHTML="";
+  $("overlayAlerts").textContent="🔕 Alerts are Off";
+  ensureAudio();
+
+  if(keepAwakeEnabled){
+    await requestWakeLock();
+  }
+
+  if(withAlerts){
+    await enableAlerts(false);
+  } else {
+    // Mark anything already due so switching alerts on later won't create a backlog.
+    const now=new Date();
+    for(const e of schedule){
+      if(e.time <= now) alertedEvents.add(e.id);
+    }
+  }
+
+  startTicker();
+}
+
+$("startWithAlerts").onclick=()=>openHandsFreeMode(true);
+$("startWithoutAlerts").onclick=()=>openHandsFreeMode(false);
+
+$("closeHandsFree").onclick=async()=>{
+  $("cookingOverlay").classList.add("hidden");
+  document.body.style.overflow="";
+  cookingModeActive=false;
+  alertsEnabled=false;
+  await releaseWakeLock();
+};
+
+
+async function cancelCookingSession(){
+  const confirmed=window.confirm(
+    "Are you sure you want to cancel cooking?\n\n" +
+    "This will stop the current cooking session and return to meal setup. " +
+    "Your food items will be kept."
+  );
+  if(!confirmed) return;
+
+  cookingModeActive=false;
+  alertsEnabled=false;
+  alertedEvents.clear();
+
+  if(cookingTimer){
+    clearInterval(cookingTimer);
+    cookingTimer=null;
+  }
+
+  try{
+    if("speechSynthesis" in window) speechSynthesis.cancel();
+  }catch(e){}
+
+  await releaseWakeLock();
+
+  // Cancel the active plan, but keep the foods the user has entered.
+  schedule=[];
+  $("cookingOverlay").classList.add("hidden");
+  $("cookingCard").classList.add("hidden");
+  $("scheduleCard").classList.add("hidden");
+  $("overlayStatus").innerHTML="";
+  $("planStatus").innerHTML=
+    '<div class="status warn"><strong>Cooking cancelled.</strong> Your food items are still here, ready to adjust or plan again.</div>';
+
+  document.body.style.overflow="";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+$("cancelCooking").onclick=cancelCookingSession;
+
+$("overlayAlerts").onclick=async()=>{
+  if(alertsEnabled) disableAlerts();
+  else await enableAlerts(true);
+};
+
+$("overlayDone").onclick=()=>{
+  const event=currentDisplayEvent();
+  if(!event) return;
+  const now=new Date();
+  const lateMinutes=Math.max(0,Math.floor((now-event.time)/60000));
+  event.done=true;
+  if(lateMinutes>0) conservativeLateReschedule(event,lateMinutes);
+  renderSchedule(false);
+  updateCookingMode();
+};
+
+$("overlayLate").onclick=()=>{
+  const event=currentDisplayEvent();
+  if(!event) return;
+  const now=new Date();
+  const lateMinutes=Math.max(0,Math.ceil((now-event.time)/60000));
+  if(lateMinutes<=0){
+    $("overlayStatus").innerHTML='<div class="status good">You are still on schedule — no change needed.</div>';
+    return;
+  }
+  conservativeLateReschedule(event,lateMinutes);
+  event.time=now;
+  alertedEvents.delete(event.id);
+  renderSchedule(false);
+  updateCookingMode();
+};
+
+document.addEventListener("visibilitychange",async()=>{
+  if(document.visibilityState==="visible" && cookingModeActive && keepAwakeEnabled && !wakeLock){
+    await requestWakeLock();
+    updateCookingMode();
+  }
+});
+
+</script>
+
+<script>
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js").catch(err => {
+      console.warn("ServeSync service worker registration failed:", err);
+    });
+  });
+}
+</script>
+
 </body>
 </html>

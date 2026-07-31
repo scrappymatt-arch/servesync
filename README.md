@@ -1,16 +1,24 @@
-# MatchBuddy V2.3
+# ServeSync v4.0
 
-Live football fixtures and selected-match tracking powered through the MatchBuddy Cloudflare Worker.
+## Custom time picker
 
-## V2.3 changes
+This release replaces the browser's old white native time dropdown with a
+ServeSync-designed bottom-sheet picker.
 
-- New compact fixture layout inspired by efficient live-score apps
-- Slimmer region, country and league headers
-- Match rows use substantially less vertical space without shrinking the key score text
-- Compact and Comfortable fixture-spacing choices in Settings
-- Compact mode is the default
-- Updated cache and release version
+Features:
 
-## Publishing
+- modern slide-up panel;
+- matching dark and light appearances;
+- large hour and minute controls;
+- five-minute minute adjustments;
+- quick choices for 30, 60 and 90 minutes from now;
+- clear Cancel and Set time buttons;
+- tapping outside the panel closes it without changing the time;
+- the original native time inputs remain as the stored values and fallback;
+- both Ready by and Start at use the same picker.
 
-Upload all files to the root of the existing GitHub Pages repository. Wait for deployment, then close and reopen the installed app or use a hard refresh.
+All v3.9 functionality is retained.
+
+Current build: **v4.0**
+
+Upload these 7 files over the existing GitHub repository files and commit.
